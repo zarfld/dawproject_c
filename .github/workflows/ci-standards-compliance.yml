@@ -19,7 +19,7 @@ env:
 
 jobs:
   spec-validation:
-    name: Spec Structure Validation (Schema & Prereq)
+    name: Requirements Traceability (ISO/IEC/IEEE 29148)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +34,7 @@ jobs:
             echo '❌ Spec structure validation failed.'; exit 1; }
 
   spec-generation:
-    name: Spec Artifact Generation (Index, Trace JSON)
+    name: Spec Artifact Generation (Index, Trace JSON, Test Skeletons)
     needs: [spec-validation]
     runs-on: ubuntu-latest
     steps:
@@ -54,8 +54,9 @@ jobs:
             build/spec-index.json
             build/traceability.json
 
+  # Phase 05: TDD - Test-Driven Development
   unit-tests:
-    name: C++ Build & Unit Tests (TDD)
+    name: Unit Tests (XP - TDD Red-Green-Refactor)
     needs: [spec-validation]
     runs-on: ubuntu-latest
     steps:
@@ -128,8 +129,9 @@ jobs:
         run: |
           echo 'TODO: Enforce minimum coverage threshold in future.'
 
+  # Phase 05: Implementation Quality Checks
   code-quality:
-    name: Code Quality & Static Analysis
+    name: Code Quality & Standards (IEEE 1016, XP Practices)
     needs: [spec-generation]
     runs-on: ubuntu-latest
     steps:
@@ -195,8 +197,9 @@ jobs:
           path: build/integrity-scan.json
           if-no-files-found: ignore
 
+  # Phase 02: Requirements Traceability Check
   requirements-traceability:
-    name: Requirements Traceability Matrix
+    name: Requirements Traceability (ISO/IEC/IEEE 29148)
     needs: [spec-validation]
     runs-on: ubuntu-latest
     steps:
@@ -216,8 +219,9 @@ jobs:
           path: reports/traceability-matrix.md
           if-no-files-found: ignore
 
+  # Phase 03: Architecture Compliance (ISO/IEC/IEEE 42010)
   architecture-validation:
-    name: Architecture Compliance (ADR & Views)
+    name: Architecture Compliance (ISO/IEC/IEEE 42010)
     needs: [spec-validation]
     runs-on: ubuntu-latest
     steps:
@@ -239,6 +243,7 @@ jobs:
             grep -qi "$attr" "$file" || { echo "❌ Missing scenario for $attr"; exit 1; }; done; \
           echo '✅ Quality attribute scenarios present'
 
+  # Security Scanning
   security-scan:
     name: Security & Hygiene Scan
     runs-on: ubuntu-latest
@@ -260,8 +265,10 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-results.sarif
+
+  # Phase 06: Integration Testing
   integration-tests:
-    name: Integration Tests (Placeholder)
+    name: Integration Tests (XP - Continuous Integration)
     needs: [unit-tests]
     runs-on: ubuntu-latest
     steps:
@@ -270,9 +277,17 @@ jobs:
         run: |
           echo 'No dedicated integration tests yet – placeholder succeeded.'
 
+  # Deployment (Phase 08) - only on main branch
   deploy-staging:
-    name: Deploy to Staging (Placeholder)
-    needs: [integration-tests]
+    name: Deploy to Staging (Phase 08 - Transition)
+    needs:
+      [
+        code-quality,
+        unit-tests,
+        integration-tests,
+        acceptance-tests,
+        security-scan,
+      ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -280,8 +295,9 @@ jobs:
         run: |
           echo 'No staging deployment implemented yet – placeholder succeeded.'
 
+  # Phase 07: Verification & Validation (IEEE 1012)
   acceptance-tests:
-    name: Acceptance Tests (Placeholder)
+    name: Acceptance Tests (XP - Customer Tests, IEEE 1012)
     needs: [integration-tests]
     runs-on: ubuntu-latest
     steps:
@@ -290,6 +306,7 @@ jobs:
         run: |
           echo 'No acceptance (customer) tests implemented yet – placeholder succeeded.'
 
+  # Standards Compliance Report
   compliance-report:
     name: Consolidated Standards Compliance Report
     if: always()
