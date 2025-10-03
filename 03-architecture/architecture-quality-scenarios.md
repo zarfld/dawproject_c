@@ -1,3 +1,17 @@
+---
+specType: architecture
+standard: 42010
+phase: 03-architecture
+version: 1.0.0
+author: Architecture Team
+date: 2025-10-03
+status: approved
+traceability:
+  requirements:
+    - REQ-F-001
+    - REQ-NF-001
+---
+
 # Architecture Quality Attribute Scenarios
 
 Quality Attribute (QA) scenarios make non-functional requirements concrete and testable. Each scenario follows the structured form recommended in architecture evaluation methods (e.g., ATAM) and ties directly to requirements.

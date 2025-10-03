@@ -1,3 +1,17 @@
+---
+specType: architecture
+standard: 42010
+phase: 03-architecture
+version: 1.0.0
+author: Architecture Team
+date: 2025-10-03
+status: approved
+traceability:
+  requirements:
+    - REQ-F-001
+    - REQ-NF-001
+---
+
 # ADR-TEMPLATE: [Decision Title]
 
 > Use this template for each significant architectural decision. Based on Michael Nygard ADR format and ISO/IEC/IEEE 42010 rationale requirements.

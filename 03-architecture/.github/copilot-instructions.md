@@ -1,3 +1,17 @@
+---
+specType: architecture
+standard: 42010
+phase: 03-architecture
+version: 1.0.0
+author: Architecture Team
+date: 2025-10-03
+status: approved
+traceability:
+  requirements:
+    - REQ-F-001
+    - REQ-NF-001
+---
+
 # Phase 03: Architecture Design
 
 **Standards**: ISO/IEC/IEEE 42010:2011 (Architecture Description), IEEE 1016-2009  

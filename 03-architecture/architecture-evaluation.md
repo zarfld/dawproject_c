@@ -1,3 +1,17 @@
+---
+specType: architecture
+standard: 42010
+phase: 03-architecture
+version: 1.0.0
+author: Architecture Team
+date: 2025-10-03
+status: approved
+traceability:
+  requirements:
+    - REQ-F-001
+    - REQ-NF-001
+---
+
 # Architecture Evaluation
 
 This document captures formal and lightweight evaluation of the architecture using ATAM (Architecture Tradeoff Analysis Method) concepts plus scenario-based reviews.
