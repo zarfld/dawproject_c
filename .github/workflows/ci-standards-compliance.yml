@@ -1,3 +1,40 @@
+  coverage-build:
+    name: C++ Coverage Build & Report (Scaffold)
+    needs: [spec-validation]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build toolchain (with gcovr)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake gcovr lcov
+      - name: Configure (CMake, Coverage)
+        run: |
+          cd 05-implementation
+          cmake -B build/coverage -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }} -DBUILD_TESTING=ON -DENABLE_COVERAGE=ON
+      - name: Build (Coverage)
+        run: |
+          cd 05-implementation
+          cmake --build build/coverage --config Debug -- -j$(nproc)
+      - name: Run Unit Tests (Coverage)
+        run: |
+          cd 05-implementation/build/coverage
+          ctest --output-on-failure || { echo '❌ Coverage unit tests failed'; exit 1; }
+      - name: Generate Coverage Report (gcovr)
+        run: |
+          cd 05-implementation/build/coverage
+          gcovr -r ../.. --xml-pretty -o coverage.xml --html --html-details -o coverage.html || echo 'Coverage report generation failed (scaffold)'
+      - name: Upload Coverage Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            05-implementation/build/coverage/coverage.xml
+            05-implementation/build/coverage/coverage.html
+        if-no-files-found: ignore
+      - name: Coverage Enforcement (placeholder)
+        run: |
+          echo 'TODO: Enforce minimum coverage threshold in future.'
 name: CI - Standards Compliance & Quality Gates
 
 on:
