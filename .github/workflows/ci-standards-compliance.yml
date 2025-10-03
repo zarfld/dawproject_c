@@ -1,6 +1,7 @@
 name: CI - Standards Compliance & Quality Gates
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, master, develop, "feature/**", "release/**"]
   pull_request:
