@@ -7,8 +7,8 @@ author: "Architecture Team"
 date: "2025-10-03"
 status: "approved"
 traceability:
-	requirements:
-		- "REQ-NF-002"
+    requirements:
+        - "REQ-NF-002"
 ---
 
 # ADR-008: Build System Configuration (CMake)

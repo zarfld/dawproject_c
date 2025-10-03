@@ -7,8 +7,8 @@ author: "Architecture Team"
 date: "2025-10-03"
 status: "approved"
 traceability:
-	requirements:
-		- "REQ-NF-001"
+    requirements:
+        - "REQ-NF-001"
 ---
 
 # ADR-006: Memory Management Strategy
