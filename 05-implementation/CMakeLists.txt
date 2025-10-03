@@ -145,6 +145,20 @@ if(ENABLE_TESTING)
         DEPENDS test_data_red
         COMMENT "Running TDD test suite"
     )
+
+    # Integration test (initial round-trip) - will expand to real API once implemented
+    add_executable(integration_roundtrip
+        tests/integration/test_roundtrip.cpp
+    )
+    target_link_libraries(integration_roundtrip PRIVATE dawproject_data Catch2::Catch2WithMain)
+    catch_discover_tests(integration_roundtrip TEST_PREFIX integration::)
+
+    # Acceptance test harness (API facade placeholder)
+    add_executable(acceptance_api
+        tests/acceptance/test_acceptance_api.cpp
+    )
+    target_link_libraries(acceptance_api PRIVATE dawproject_data Catch2::Catch2WithMain)
+    catch_discover_tests(acceptance_api TEST_PREFIX acceptance::)
 endif()
 
 # Performance testing executable (for refactoring verification)
@@ -176,3 +190,6 @@ message(STATUS "  C++ standard: ${CMAKE_CXX_STANDARD}")
 message(STATUS "  Testing enabled: ${ENABLE_TESTING}")
 message(STATUS "  Code coverage: ${ENABLE_COVERAGE}")
 message(STATUS "  Sanitizers: ${ENABLE_SANITIZERS}")
+
+# Packaging (staging artifact) - minimal install rules placeholder
+include(CPack)

@@ -314,7 +314,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run integration test suite
         run: |
-          echo 'No dedicated integration tests yet – placeholder succeeded.'
+          cd 05-implementation
+          cmake -B ${{ env.BUILD_DIR }} -S . -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DENABLE_TESTING=ON -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }}
+          cmake --build ${{ env.BUILD_DIR }} --target integration_roundtrip -- -j$(nproc)
+          cd ${{ env.BUILD_DIR }}
+          ctest -R integration_roundtrip --output-on-failure || { echo '❌ Integration tests failed'; exit 1; }
 
   # Deployment (Phase 08) - only on main branch
   deploy-staging:
@@ -332,7 +336,18 @@ jobs:
       - uses: actions/checkout@v4
       - name: Deploy to staging
         run: |
-          echo 'No staging deployment implemented yet – placeholder succeeded.'
+          cd 05-implementation
+          cmake -B build/package -S . -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=OFF
+          cmake --build build/package --target all -- -j$(nproc)
+          cmake --install build/package --prefix build/package/install
+          (cd build/package && cpack -G TGZ || echo 'CPack packaging failed')
+          ls -1 build/package/*.tar.gz || echo 'No package produced'
+      - name: Upload staging package
+        uses: actions/upload-artifact@v4
+        with:
+          name: dawproject-staging-package
+          path: 05-implementation/build/package/*.tar.gz
+          if-no-files-found: warn
 
   # Phase 07: Verification & Validation (IEEE 1012)
   acceptance-tests:
@@ -343,7 +358,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run acceptance test suite
         run: |
-          echo 'No acceptance (customer) tests implemented yet – placeholder succeeded.'
+          cd 05-implementation
+            cmake -B ${{ env.BUILD_DIR }} -S . -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DENABLE_TESTING=ON -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }}
+            cmake --build ${{ env.BUILD_DIR }} --target acceptance_api -- -j$(nproc)
+            cd ${{ env.BUILD_DIR }}
+            ctest -R acceptance_api --output-on-failure || { echo '❌ Acceptance tests failed'; exit 1; }
 
   # Standards Compliance Report
   compliance-report:

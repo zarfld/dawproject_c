@@ -35,11 +35,27 @@ def main() -> int:
     for prefix in PREFIX_ORDER:
         ids = [i['id'] for i in items if i['id'].startswith(prefix)]
         linked = [i for i in ids if any(b for b in forward[i])]
-        metrics[prefix] = {
+        metrics[prefix.lower() if prefix != 'REQ' else 'requirement'] = {
             'total': len(ids),
             'with_links': len(linked),
             'coverage_pct': (len(linked) / len(ids) * 100) if ids else 100.0,
         }
+
+    # Requirement-specific linkage dimensions
+    req_ids = [i['id'] for i in items if i['id'].startswith('REQ')]
+    def req_link_stat(target_prefix: str):
+        count_total = len(req_ids)
+        count_with = 0
+        for rid in req_ids:
+            refs = forward.get(rid, [])
+            if any(r.startswith(target_prefix) for r in refs):
+                count_with += 1
+        pct = (count_with / count_total * 100) if count_total else 100.0
+        return {'total_requirements': count_total, 'requirements_with_link': count_with, 'coverage_pct': pct}
+
+    metrics['requirement_to_ADR'] = req_link_stat('ADR')
+    metrics['requirement_to_scenario'] = req_link_stat('QA')
+    metrics['requirement_to_test'] = req_link_stat('TEST')
 
     OUT.write_text(
         json.dumps(
