@@ -18,7 +18,43 @@ env:
   BUILD_DIR: build/ci
 
 jobs:
-  cpp-build-and-test:
+  spec-validation:
+    name: Spec Structure Validation (Schema & Prereq)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install spec validation deps
+        run: pip install pyyaml jsonschema
+      - name: Validate spec structure
+        run: |
+          python scripts/validate-spec-structure.py || {
+            echo '❌ Spec structure validation failed.'; exit 1; }
+
+  spec-generation:
+    name: Spec Artifact Generation (Index, Trace JSON)
+    needs: [spec-validation]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Generate spec index
+        run: python scripts/generators/spec_parser.py
+      - name: Build traceability JSON
+        run: python scripts/generators/build_trace_json.py
+      - name: Upload generated artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: spec-generated-artifacts
+          path: |
+            build/spec-index.json
+            build/traceability.json
+
+  unit-tests:
     name: C++ Build & Unit Tests (TDD)
     needs: [spec-validation]
     runs-on: ubuntu-latest
@@ -54,24 +90,9 @@ jobs:
           name: build-binaries
           path: 05-implementation/${{ env.BUILD_DIR }}
 
-  spec-validation:
-    name: Spec Structure Validation (Schema & Prereq)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - name: Install spec validation deps
-        run: pip install pyyaml jsonschema
-      - name: Validate spec structure
-        run: |
-          python scripts/validate-spec-structure.py || {
-            echo '❌ Spec structure validation failed.'; exit 1; }
-
   coverage-build:
     name: C++ Coverage Build & Report (Scaffold)
-    needs: [cpp-build-and-test]
+    needs: [unit-tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -106,29 +127,10 @@ jobs:
       - name: Coverage Enforcement (placeholder)
         run: |
           echo 'TODO: Enforce minimum coverage threshold in future.'
-          cd 05-implementation
-          cmake --build ${{ env.BUILD_DIR }} --config ${{ env.CMAKE_BUILD_TYPE }} -- -j$(nproc)
-      - name: Run Unit Tests (CTest)
-        run: |
-          cd 05-implementation/${{ env.BUILD_DIR }}
-          ctest --output-on-failure || { echo '❌ Unit tests failed'; exit 1; }
-      - name: Run Performance Tests (non-blocking)
-        continue-on-error: true
-        run: |
-          cd 05-implementation
-          if [ -f "${{ env.BUILD_DIR }}/performance_test" ]; then ./${{ env.BUILD_DIR }}/performance_test; else echo 'No performance_test binary'; fi
-      - name: Collect Coverage (placeholder)
-        run: |
-          echo 'TODO: Add coverage instrumentation flags to CMake (gcov/llvm).'
-      - name: Upload Binaries
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-binaries
-          path: 05-implementation/${{ env.BUILD_DIR }}
 
   code-quality:
     name: Code Quality & Static Analysis
-    needs: [spec-validation]
+    needs: [spec-generation]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -158,7 +160,7 @@ jobs:
 
   traceability-coverage:
     name: Traceability Coverage Enforcement
-    needs: [spec-validation]
+    needs: [spec-generation]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -258,16 +260,25 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-results.sarif
-
   integration-tests:
     name: Integration Tests (Placeholder)
-    needs: [cpp-build-and-test]
+    needs: [unit-tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Run integration test suite
         run: |
           echo 'No dedicated integration tests yet – placeholder succeeded.'
+
+  deploy-staging:
+    name: Deploy to Staging (Placeholder)
+    needs: [integration-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to staging
+        run: |
+          echo 'No staging deployment implemented yet – placeholder succeeded.'
 
   acceptance-tests:
     name: Acceptance Tests (Placeholder)
@@ -283,19 +294,19 @@ jobs:
     name: Consolidated Standards Compliance Report
     if: always()
     needs:
-      [
-        spec-validation,
-        cpp-build-and-test,
-        coverage-build,
-        code-quality,
-        integration-tests,
-        acceptance-tests,
-        traceability-coverage,
-        integrity-scan,
-        requirements-traceability,
-        architecture-validation,
-        security-scan,
-      ]
+      - spec-validation
+      - spec-generation
+      - unit-tests
+      - coverage-build
+      - code-quality
+      - integration-tests
+      - deploy-staging
+      - acceptance-tests
+      - traceability-coverage
+      - integrity-scan
+      - requirements-traceability
+      - architecture-validation
+      - security-scan
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -313,7 +324,7 @@ jobs:
 
           ## Life Cycle (ISO/IEC/IEEE 12207)
           - Spec Validation: ${{ needs.spec-validation.result }}
-          - Build & Test: ${{ needs.cpp-build-and-test.result }}
+          - Build & Test: ${{ needs.unit-tests.result }}
           - Architecture: ${{ needs.architecture-validation.result }}
           - Traceability: ${{ needs.requirements-traceability.result }}
 
