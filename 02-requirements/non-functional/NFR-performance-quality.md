@@ -171,35 +171,43 @@ The system shall complete full build (including tests) in under 5 minutes on sta
 ## Quality Attribute Tradeoffs
 
 ### Performance vs. Memory Usage
-- **DOM Mode**: Higher memory usage for faster random access
-- **Streaming Mode**: Lower memory usage with sequential-only access
-- **Hybrid Approach**: Smart caching for frequently accessed elements
 
 ### Security vs. Performance
-- **Validation Overhead**: Input validation adds processing time
-- **Mitigation**: Configurable validation levels (strict/fast modes)
-- **Balance**: Security by default with performance escape hatches
 
 ### Usability vs. Flexibility
-- **Simple API**: High-level operations hide complexity
-- **Advanced API**: Low-level access for power users
-- **Strategy**: Layered API design with progressive disclosure
+
+## Traceability Matrix
+
+| Non-Functional Requirement | Stakeholder Requirement | User Story | Architecture Decision |
+|---------------------------|------------------------|------------|----------------------|
+| NFR-PERF-001 | STR-PERF-001 | US-001, US-002 | ADR-001, ADR-006 |
+| NFR-PERF-002 | STR-PERF-002 | US-003 | ADR-006 |
+| NFR-THREAD-001 | STR-FUNC-003 | US-003 | ADR-005 |
+| NFR-SECURITY-001 | STR-SEC-001 | US-001, US-002 | ADR-007 |
+| NFR-USABILITY-001 | STR-USER-001 | US-001, US-002 | ADR-004 |
+| NFR-COMPAT-001 | Technology Constraints | US-004 | ADR-008 |
+| NFR-MAINT-001 | XP Practices | US-001, US-002, US-003, US-004 | ADR-008 |
+| NFR-BUILD-001 | Dev Process | US-001, US-002 | ADR-008 |
+
+## Measurable Criteria for All Non-Functional Requirements
+
+| Requirement | Metric | Target | Test Method |
+|-------------|--------|--------|-------------|
+| NFR-PERF-001 | Load time for large project | ≤30s | Automated perf test |
+| NFR-PERF-002 | Peak memory usage (streaming) | <500MB | Memory profiling |
+| NFR-THREAD-001 | Data race incidents | 0 | ThreadSanitizer, stress test |
+| NFR-SECURITY-001 | Vulnerability count | 0 critical | Fuzzing, static analysis |
+| NFR-USABILITY-001 | Task completion time | ≤8h for 90% devs | User study |
+| NFR-COMPAT-001 | Output parity | 100% | Cross-platform test |
+| NFR-MAINT-001 | Code coverage | ≥90% | Coverage tool |
+| NFR-BUILD-001 | Full build time | <5 min | CI build time |
 
 ## Verification Methods
 
-### Performance Testing
-- **Load Testing**: Automated testing with various project sizes
-- **Stress Testing**: Maximum capacity and failure point identification
 - **Benchmark Suite**: Standardized performance measurements
 
-### Security Testing
-- **Fuzzing**: Automated testing with malformed inputs
-- **Static Analysis**: Code analysis for security vulnerabilities
 - **Penetration Testing**: Manual security assessment
 
-### Usability Testing
-- **Developer Studies**: Task-based usability evaluation
-- **API Review**: Expert review of interface design
 - **Documentation Testing**: Verification of examples and tutorials
 
 ## Monitoring and Metrics
@@ -214,7 +222,6 @@ The system shall complete full build (including tests) in under 5 minutes on sta
 | **Cross-Platform** | Behavior differences | 0 | Every build |
 | **Code Coverage** | Line coverage | >90% | Every commit |
 | **Build Performance** | Full build time | <5 min | Every build |
-
 ---
 
 *This document follows ISO/IEC/IEEE 29148:2018 requirements engineering standards*

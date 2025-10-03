@@ -166,15 +166,25 @@ Scenario: Selective loading based on streaming analysis
 
 | Functional Requirement | Stakeholder Requirement | User Story | Architecture Decision |
 |------------------------|------------------------|------------|---------------------|
-| FR-FILE-001 | STR-FUNC-001 | US-001 | TBD (Phase 03) |
-| FR-FILE-002 | STR-USER-002 | US-002 | TBD (Phase 03) |
-| FR-FILE-003 | STR-FUNC-002 | US-003 | TBD (Phase 03) |
+| FR-FILE-001 | STR-FUNC-001 | US-001 | ADR-001, ADR-002, ADR-004 |
+| FR-FILE-002 | STR-USER-002 | US-002 | ADR-007 |
+| FR-FILE-003 | STR-FUNC-002 | US-003 | ADR-005, ADR-006 |
+| FR-FILE-004 | STR-FUNC-003 | US-004 | ADR-008 |
 
 ## Implementation Priority
 
 1. **Phase 1**: FR-FILE-001 (Core loading capability)
 2. **Phase 2**: FR-FILE-002 (Error handling and validation)  
 3. **Phase 3**: FR-FILE-003 (Streaming access for large projects)
+
+## Measurable Criteria for All Functional Requirements
+
+| Requirement | Metric | Target | Test Method |
+|-------------|--------|--------|-------------|
+| FR-FILE-001 | Load time for 32-track, 2hr project | ≤30s | Automated perf test |
+| FR-FILE-002 | Error reporting coverage | 100% of error types | Error injection tests |
+| FR-FILE-003 | Peak memory usage (streaming) | <500MB | Memory profiling |
+| FR-FILE-004 | Cross-DAW compatibility | 100% core features, clear reporting of unsupported | Interop test suite |
 
 ## Verification Methods
 
