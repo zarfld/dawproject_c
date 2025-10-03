@@ -37,6 +37,11 @@ else()
         add_compile_options(-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer)
         add_link_options(-fsanitize=address -fsanitize=undefined)
     endif()
+    if(ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+        message(STATUS "Enabling coverage instrumentation")
+        add_compile_options(--coverage -O0 -g)
+        add_link_options(--coverage)
+    endif()
 endif()
 
 # Include directories

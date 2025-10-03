@@ -14,6 +14,9 @@ env:
   CMAKE_BUILD_TYPE: "Debug"
   MIN_TEST_COVERAGE: 70 # Adjust when coverage tooling added
   MIN_REQ_LINKAGE_COVERAGE: 80
+  MIN_REQ_ADR_COVERAGE: 70
+  MIN_REQ_SCENARIO_COVERAGE: 60
+  MIN_REQ_TEST_COVERAGE: 40
   CXX_STANDARD: 17
   BUILD_DIR: build/ci
 
@@ -88,7 +91,7 @@ jobs:
           if [ -f "${{ env.BUILD_DIR }}/performance_test" ]; then ./${{ env.BUILD_DIR }}/performance_test; else echo 'No performance_test binary'; fi
       - name: Collect Coverage (placeholder)
         run: |
-          echo 'TODO: Add coverage instrumentation flags to CMake (gcov/llvm).'
+          echo 'Unit test job: baseline build only (coverage collected in dedicated job).'
       - name: Upload Binaries
         uses: actions/upload-artifact@v4
         with:
@@ -99,6 +102,8 @@ jobs:
     name: C++ Coverage Build & Report (Scaffold)
     needs: [unit-tests]
     runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v4
       - name: Install build toolchain (with gcovr)
@@ -121,6 +126,10 @@ jobs:
         run: |
           cd 05-implementation/build/coverage
           gcovr -r ../.. --xml-pretty -o coverage.xml --html --html-details -o coverage.html || echo 'Coverage report generation failed (scaffold)'
+      - name: Enforce Coverage Threshold
+        run: |
+          cd 05-implementation/build/coverage
+          python ../../../scripts/enforce_coverage.py --file coverage.xml --min ${{ env.MIN_TEST_COVERAGE }}
       - name: Upload Coverage Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -162,7 +171,12 @@ jobs:
           cppcheck --enable=warning,performance,style --inline-suppr --error-exitcode=1 05-implementation/src || echo 'cppcheck warnings found'
       - name: clang-tidy (advisory)
         run: |
-          echo 'NOTE: Integrate clang-tidy via CMake for full diagnostics in future.'
+          echo 'Running clang-tidy (advisory)';
+          sudo apt-get install -y clang-tidy >/dev/null 2>&1 || true
+          cd 05-implementation
+          cmake -B build/clangtidy -S . -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }} -DENABLE_TESTING=OFF
+          cmake --build build/clangtidy --target dawproject_data -- -j$(nproc) || true
+          if command -v run-clang-tidy >/dev/null 2>&1; then run-clang-tidy -p build/clangtidy || echo 'clang-tidy advisory issues'; else echo 'run-clang-tidy not available'; fi
 
   traceability-coverage:
     name: Traceability Coverage Enforcement
@@ -180,7 +194,10 @@ jobs:
       - name: Enforce linkage coverage
         run: |
           if [ -f scripts/validate-trace-coverage.py ]; then \
-            python scripts/validate-trace-coverage.py --min-req ${{ env.MIN_REQ_LINKAGE_COVERAGE }}; \
+            python scripts/validate-trace-coverage.py --min-req ${{ env.MIN_REQ_LINKAGE_COVERAGE }} \
+              --min-req-adr ${{ env.MIN_REQ_ADR_COVERAGE }} \
+              --min-req-scenario ${{ env.MIN_REQ_SCENARIO_COVERAGE }} \
+              --min-req-test ${{ env.MIN_REQ_TEST_COVERAGE }}; \
           else echo 'Trace coverage script missing (skipped)'; fi
 
   integrity-scan:
@@ -264,11 +281,29 @@ jobs:
           scan-ref: "."
           format: "sarif"
           output: "trivy-results.sarif"
+      - name: Trivy SBOM (CycloneDX)
+        run: |
+          trivy fs --format cyclonedx --output sbom.json . || echo 'SBOM generation failed'
+      - name: Secret scan (gitleaks)
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64.tar.gz | tar -xz gitleaks
+          ./gitleaks detect --no-git --report-format sarif --report-path gitleaks.sarif || echo 'gitleaks findings (advisory for now)'
       - name: Upload Trivy SARIF
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-results.sarif
+      - name: Upload Gitleaks SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: gitleaks.sarif
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-cyclonedx
+          path: sbom.json
+          if-no-files-found: ignore
 
   # Phase 06: Integration Testing
   integration-tests:
@@ -324,6 +359,9 @@ jobs:
         acceptance-tests,
         architecture-validation,
         security-scan,
+        coverage-build,
+        traceability-coverage,
+        integrity-scan,
       ]
     runs-on: ubuntu-latest
     steps:
@@ -351,6 +389,15 @@ jobs:
           - Security Scan: ${{ needs.security-scan.result }}
           - Integrity Scan: ${{ needs.integrity-scan.result }}
           - Trace Coverage: ${{ needs.traceability-coverage.result }}
+          - Coverage Job: ${{ needs.coverage-build.result }}
+
+          ## Traceability Metrics (Targets: Req>=${{ env.MIN_REQ_LINKAGE_COVERAGE }}%, ADR>=${{ env.MIN_REQ_ADR_COVERAGE }}%, Scenario>=${{ env.MIN_REQ_SCENARIO_COVERAGE }}%, Test>=${{ env.MIN_REQ_TEST_COVERAGE }}%)
+          (See artifacts for detailed JSON if produced.)
+
+          ## Security Artifacts
+          - SBOM (CycloneDX): generated if security scan succeeded
+          - Trivy SARIF: uploaded (filesystem scan)
+          - Gitleaks SARIF: uploaded (advisory)
 
           ## Notes
           Coverage & advanced metrics to be integrated in subsequent iteration (placeholders present).
