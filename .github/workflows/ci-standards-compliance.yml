@@ -24,7 +24,7 @@ permissions:
 
 jobs:
   spec-validation:
-    name: Requirements Traceability (ISO/IEC/IEEE 29148)
+    name: Spec Structure Validation (Schema & Traceability Prereq)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -9,15 +9,69 @@ status: "approved"
 traceability:
     requirements:
         - "REQ-F-001"
+        - "REQ-F-004"
+        - "REQ-F-005"
+        - "REQ-F-006"
+        - "REQ-F-007"
+        - "REQ-F-008"
+        - "REQ-F-011"
+        - "REQ-F-012"
+        - "REQ-F-015"
+        - "REQ-F-019"
+        - "REQ-F-020"
+        - "REQ-F-021"
+        - "REQ-F-030"
+        - "REQ-F-038"
+        - "REQ-F-041"
+        - "REQ-F-042"
+        - "REQ-F-045"
         - "REQ-NF-001"
+        - "REQ-NF-004"
+        - "REQ-NF-005"
+        - "REQ-NF-008"
+        - "REQ-NF-010"
+        - "REQ-NF-020"
 ---
 
 # ADR-001: Layered Architecture with Plugin Elements
 
-**Status**: Accepted  
-**Date**: October 3, 2025  
-**Deciders**: Architecture Team  
-**Technical Story**: Phase 03 - Architecture Design
+## Status
+Accepted (Approved by Architecture Team on 2025-10-03)
+
+## Metadata
+- Date: 2025-10-03
+- Deciders: Architecture Team
+- Technical Story: Phase 03 - Architecture Design
+
+## Requirements Addressed
+This architectural style directly supports or constrains the following functional and non-functional requirements. Detailed per-requirement design rationales will be elaborated in subsequent detailed design specifications; inclusion here establishes traceability for the high-level architectural decision.
+
+### Functional
+- REQ-F-001 – Core read/write project manipulation
+- REQ-F-004 – Support for project initialization workflows
+- REQ-F-005 – Project metadata extraction
+- REQ-F-006 – Track enumeration & basic access
+- REQ-F-007 – Clip enumeration & basic access
+- REQ-F-008 – Plugin (effect/instrument) listing
+- REQ-F-011 – Streaming (bounded memory) read capability
+- REQ-F-012 – DOM (full in-memory) read capability
+- REQ-F-015 – Dual API exposure (C++ and C-style)
+- REQ-F-019 – Cross-platform project loading
+- REQ-F-020 – Cross-platform project saving
+- REQ-F-021 – Thread-safe concurrent read (multi-reader)
+- REQ-F-030 – Version negotiation (future format versions)
+- REQ-F-038 – Layered extensibility for new processors
+- REQ-F-041 – Pluggable platform abstractions
+- REQ-F-042 – Separation of parsing from business logic
+- REQ-F-045 – Strategy selection between DOM and streaming
+
+### Non-Functional
+- REQ-NF-001 – Maintainable modular structure
+- REQ-NF-004 – Performance (project load time targets)
+- REQ-NF-005 – Memory efficiency (streaming constraints)
+- REQ-NF-008 – Testability (unit isolation per layer)
+- REQ-NF-010 – Extensibility (add new format versions)
+- REQ-NF-020 – Portability (Windows/macOS/Linux)
 
 ---
 
