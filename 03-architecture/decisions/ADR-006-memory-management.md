@@ -13,8 +13,10 @@ traceability:
 
 # ADR-006: Memory Management Strategy
 
-**Status**: Accepted  
-**Date**: October 3, 2025  
+## Status
+
+Accepted (2025-10-03) – RAII + custom allocators + pools strategy approved.
+
 **Deciders**: Architecture Team  
 **Technical Story**: Resource Management for DAW Project C++ Library
 

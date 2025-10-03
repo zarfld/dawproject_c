@@ -13,12 +13,12 @@ traceability:
 
 # ADR-002: XML Parser Selection (pugixml)
 
-**Status**: Accepted  
-**Date**: October 3, 2025  
+## Status
+
+Accepted (2025-10-03) – pugixml 1.13 chosen as primary XML parser; revisit for native schema validation needs.
+
 **Deciders**: Architecture Team  
 **Technical Story**: Technology Stack Selection for XML Processing
-
----
 
 ## Context
 

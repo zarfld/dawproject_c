@@ -15,6 +15,7 @@ env:
   MIN_TEST_COVERAGE: 70 # Adjust when coverage tooling added
   MIN_REQ_LINKAGE_COVERAGE: 80
   CXX_STANDARD: 17
+  BUILD_DIR: build/ci
 
 jobs:
   spec-validation:
@@ -66,20 +67,20 @@ jobs:
       - name: Configure (CMake)
         run: |
           cd 05-implementation
-          cmake -B build_ci -S . -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }}
+          cmake -B ${{ env.BUILD_DIR }} -S . -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }} -DBUILD_TESTING=ON
       - name: Build
         run: |
           cd 05-implementation
-          cmake --build build_ci --config ${{ env.CMAKE_BUILD_TYPE }} -- -j$(nproc)
-      - name: Run Unit Tests
+          cmake --build ${{ env.BUILD_DIR }} --config ${{ env.CMAKE_BUILD_TYPE }} -- -j$(nproc)
+      - name: Run Unit Tests (CTest)
         run: |
-          cd 05-implementation
-          ./build_ci/test_data_red || { echo '❌ Unit tests failed'; exit 1; }
+          cd 05-implementation/${{ env.BUILD_DIR }}
+          ctest --output-on-failure || { echo '❌ Unit tests failed'; exit 1; }
       - name: Run Performance Tests (non-blocking)
         continue-on-error: true
         run: |
           cd 05-implementation
-          ./build_ci/performance_test
+          if [ -f "${{ env.BUILD_DIR }}/performance_test" ]; then ./${{ env.BUILD_DIR }}/performance_test; else echo 'No performance_test binary'; fi
       - name: Collect Coverage (placeholder)
         run: |
           echo 'TODO: Add coverage instrumentation flags to CMake (gcov/llvm).'
@@ -87,7 +88,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-binaries
-          path: 05-implementation/build_ci
+          path: 05-implementation/${{ env.BUILD_DIR }}
 
   code-quality:
     name: Code Quality & Static Analysis
@@ -95,13 +96,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - name: Install quality tools
+      - name: Install quality tools (YAML + Markdown)
         run: |
-          pip install yamllint markdownlint-cli2
-      - name: Lint Markdown
+          pip install yamllint
+          npm install -g markdownlint-cli2
+      - name: Lint Markdown (advisory)
         run: |
           markdownlint-cli2 "**/*.md" || echo 'Markdown lint warnings (non-blocking)'
       - name: Lint YAML

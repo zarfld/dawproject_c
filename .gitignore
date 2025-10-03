@@ -57,3 +57,10 @@ ENV/
 # Misc
 .cache/
 *.pid
+
+# C++ build artifacts (standardized hierarchy)
+05-implementation/build/
+# Legacy / transitional build directories (to be removed locally)
+05-implementation/build_ci/
+05-implementation/build_tdd/
+05-implementation/build_tmp/

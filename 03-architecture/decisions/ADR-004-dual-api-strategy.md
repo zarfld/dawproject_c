@@ -14,8 +14,10 @@ traceability:
 
 # ADR-004: Dual API Strategy (C++ and C-style)
 
-**Status**: Accepted  
-**Date**: October 3, 2025  
+## Status
+
+Accepted (2025-10-03) – dual API approach approved (modern C++ + C layer).
+
 **Deciders**: Architecture Team  
 **Technical Story**: API Design for Maximum Compatibility
 

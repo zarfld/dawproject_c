@@ -13,8 +13,10 @@ traceability:
 
 # ADR-005: Thread Safety Implementation
 
-**Status**: Accepted  
-**Date**: October 3, 2025  
+## Status
+
+Accepted (2025-10-03) – concurrency model locked in (shared_mutex + immutable data).
+
 **Deciders**: Architecture Team  
 **Technical Story**: Concurrency and Thread Safety for DAW Project C++ Library
 

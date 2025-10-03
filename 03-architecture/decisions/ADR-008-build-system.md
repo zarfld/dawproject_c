@@ -13,8 +13,10 @@ traceability:
 
 # ADR-008: Build System Configuration (CMake)
 
-**Status**: Accepted  
-**Date**: October 3, 2025  
+## Status
+
+Accepted (2025-10-03) – CMake baseline set; multi-platform CI integration ongoing.
+
 **Deciders**: Architecture Team  
 **Technical Story**: Build and Dependency Management for DAW Project C++ Library
 

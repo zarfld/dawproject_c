@@ -13,12 +13,12 @@ traceability:
 
 # ADR-003: ZIP Library Selection (minizip)
 
-**Status**: Accepted  
-**Date**: October 3, 2025  
+## Status
+
+Accepted (2025-10-03) – minizip selected for lightweight streaming archive support.
+
 **Deciders**: Architecture Team  
 **Technical Story**: Technology Stack Selection for ZIP Archive Handling
-
----
 
 ## Context
 

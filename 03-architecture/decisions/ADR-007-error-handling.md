@@ -13,8 +13,10 @@ traceability:
 
 # ADR-007: Error Handling Approach
 
-**Status**: Accepted  
-**Date**: October 3, 2025  
+## Status
+
+Accepted (2025-10-03) – dual error strategy (exceptions + codes) set.
+
 **Deciders**: Architecture Team  
 **Technical Story**: Error Handling and Reporting for DAW Project C++ Library
 
