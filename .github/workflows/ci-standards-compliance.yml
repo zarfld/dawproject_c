@@ -185,7 +185,7 @@ jobs:
 
   integrity-scan:
     name: Integrity Level Scan
-    needs: [spec-validation]
+    needs: [spec-generation]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

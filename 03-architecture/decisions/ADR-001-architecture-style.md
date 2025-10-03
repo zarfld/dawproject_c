@@ -36,17 +36,21 @@ traceability:
 # ADR-001: Layered Architecture with Plugin Elements
 
 ## Status
+
 Accepted (Approved by Architecture Team on 2025-10-03)
 
 ## Metadata
+
 - Date: 2025-10-03
 - Deciders: Architecture Team
 - Technical Story: Phase 03 - Architecture Design
 
 ## Requirements Addressed
+
 This architectural style directly supports or constrains the following functional and non-functional requirements. Detailed per-requirement design rationales will be elaborated in subsequent detailed design specifications; inclusion here establishes traceability for the high-level architectural decision.
 
 ### Functional
+
 - REQ-F-001 – Core read/write project manipulation
 - REQ-F-004 – Support for project initialization workflows
 - REQ-F-005 – Project metadata extraction
@@ -66,6 +70,7 @@ This architectural style directly supports or constrains the following functiona
 - REQ-F-045 – Strategy selection between DOM and streaming
 
 ### Non-Functional
+
 - REQ-NF-001 – Maintainable modular structure
 - REQ-NF-004 – Performance (project load time targets)
 - REQ-NF-005 – Memory efficiency (streaming constraints)
@@ -80,7 +85,7 @@ This architectural style directly supports or constrains the following functiona
 We need to select an architectural style for the DAW Project C++ Library that supports:
 
 - **Dual API Support**: Both modern C++ and C-style interfaces
-- **Dual Access Patterns**: DOM (full in-memory) and streaming (bounded memory) 
+- **Dual Access Patterns**: DOM (full in-memory) and streaming (bounded memory)
 - **Cross-Platform Compatibility**: Windows, macOS, Linux
 - **Thread Safety**: Multiple readers, single writer access patterns
 - **Standards Compliance**: Bitwig DAW Project v1.0 with future version extensibility
@@ -112,6 +117,7 @@ We will implement a **Layered Architecture** with **Plugin Architecture** elemen
 ### Why Layered Architecture?
 
 **✅ Advantages**:
+
 - **Clear Separation of Concerns**: Each layer has distinct responsibility
 - **Testability**: Each layer can be unit tested independently
 - **Maintainability**: Changes in one layer don't ripple through entire system
@@ -119,6 +125,7 @@ We will implement a **Layered Architecture** with **Plugin Architecture** elemen
 - **Cross-Platform Support**: Platform abstraction layer isolates OS differences
 
 **✅ Aligns with Requirements**:
+
 - **Dual APIs**: API layer can provide multiple interfaces to same business logic
 - **Performance**: Business logic layer can optimize without affecting APIs
 - **Thread Safety**: Can be implemented consistently across all layers
@@ -127,11 +134,13 @@ We will implement a **Layered Architecture** with **Plugin Architecture** elemen
 ### Why Plugin Elements?
 
 **✅ Advantages**:
+
 - **Extensibility**: New DAW Project versions can be added as plugins
 - **Performance Options**: DOM vs. streaming as pluggable strategies
 - **Platform Support**: Platform-specific code isolated in plugins
 
 **✅ Aligns with Requirements**:
+
 - **Dual Access Patterns**: DOM and streaming processors as strategy plugins
 - **Future Standards**: Version-specific processors as plugins
 - **Cross-Platform**: Platform abstraction as plugin architecture
@@ -139,22 +148,30 @@ We will implement a **Layered Architecture** with **Plugin Architecture** elemen
 ### Alternative Architectures Considered
 
 #### ❌ **Microservices Architecture**
+
 **Rejected Reason**: Overkill for a library. Adds network complexity without benefits.
+
 - **Pros**: High scalability, fault isolation
 - **Cons**: Network overhead, deployment complexity, unsuitable for library
 
-#### ❌ **Monolithic Architecture**  
+#### ❌ **Monolithic Architecture**
+
 **Rejected Reason**: Doesn't support dual access patterns and extensibility requirements.
+
 - **Pros**: Simple deployment, easy debugging
 - **Cons**: Poor separation of concerns, difficult to extend, platform coupling
 
 #### ⚠️ **Hexagonal Architecture (Ports & Adapters)**
+
 **Considered but Rejected**: More complex than needed for this domain.
+
 - **Pros**: Excellent testability, dependency inversion
 - **Cons**: Over-engineering for file processing library, learning curve
 
 #### ⚠️ **Component-Based Architecture**
+
 **Considered but Rejected**: Similar benefits to chosen approach but more coupling.
+
 - **Pros**: Reusable components, clear interfaces
 - **Cons**: More complex inter-component communication, harder to maintain
 
