@@ -218,6 +218,26 @@ jobs:
         with:
           sarif_file: trivy-results.sarif
 
+  integration-tests:
+    name: Integration Tests (Placeholder)
+    needs: [cpp-build-and-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run integration test suite
+        run: |
+          echo 'No dedicated integration tests yet – placeholder succeeded.'
+
+  acceptance-tests:
+    name: Acceptance Tests (Placeholder)
+    needs: [integration-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run acceptance test suite
+        run: |
+          echo 'No acceptance (customer) tests implemented yet – placeholder succeeded.'
+
   compliance-report:
     name: Consolidated Standards Compliance Report
     if: always()
@@ -227,6 +247,8 @@ jobs:
         spec-generation,
         cpp-build-and-test,
         code-quality,
+        integration-tests,
+        acceptance-tests,
         traceability-coverage,
         integrity-scan,
         requirements-traceability,

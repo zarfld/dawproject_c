@@ -31,6 +31,21 @@ author: [Name]
 date: YYYY-MM-DD
 reviewers: []
 ```
+---
+specType: architecture
+standard: "ISO/IEC/IEEE 42010:2011"
+phase: "03-architecture"
+version: "1.0.0"
+author: Architecture Team
+date: "2025-10-03"
+status: draft
+traceability:
+  requirements:
+    - "REQ-F-001"
+    - "REQ-NF-001"
+---
+
+ADR-999 (Reference Anchor)  
 
 ## Context
 Describe the architectural concern, drivers (quality attributes, constraints), and forces in conflict. Reference stakeholder concerns and specific requirements (ISO/IEC/IEEE 29148 linkage).

@@ -29,6 +29,9 @@ Loading DAW Project files is the fundamental capability required for any applica
 
 **Acceptance Criteria**:
 
+Reference IDs for validator trace pattern:
+REQ-F-001, REQ-F-002, REQ-F-003
+
 ```gherkin
 Scenario: Load standard DAW Project file
   Given a valid DAW Project file created by Bitwig Studio

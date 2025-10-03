@@ -1,3 +1,17 @@
+---
+specType: requirements
+standard: "ISO/IEC/IEEE 29148:2018"
+phase: "02-requirements"
+version: "1.0.0"
+author: "Standards-Compliant Development Team"
+date: "2025-10-03"
+status: "draft"
+traceability:
+  stakeholderRequirements:
+    - "StR-001"
+userStory: US-002
+---
+
 # User Story: Save DAW Project File
 
 **US-002**: As a DAW user, I want to save my current project to a DAW Project file, so that I can preserve my work and share it with other DAWs.
@@ -14,6 +28,8 @@
 **Iteration**: 1
 
 ## Acceptance Criteria
+
+Traceability References: REQ-F-010, REQ-F-011
 
 - [ ] **Simple API**: Save project with single function call `DawProject::save("file.dawproject")`
 - [ ] **Error Handling**: Clear error messages for invalid or unwritable files

@@ -1,3 +1,17 @@
+---
+specType: requirements
+standard: "ISO/IEC/IEEE 29148:2018"
+phase: "02-requirements"
+version: "1.0.0"
+author: "Standards-Compliant Development Team"
+date: "2025-10-03"
+status: "draft"
+traceability:
+  stakeholderRequirements:
+    - "StR-002"
+userStory: US-003
+---
+
 # User Story: Edit Project Elements
 
 **US-003**: As a DAW user, I want to edit tracks, clips, and automation in a loaded DAW Project, so that I can modify and arrange my music projects.
@@ -14,6 +28,8 @@
 **Iteration**: 2
 
 ## Acceptance Criteria
+
+Traceability References: REQ-F-020, REQ-F-021
 
 - [ ] **Track Editing**: Add, remove, rename, and reorder tracks
 - [ ] **Clip Editing**: Add, remove, move, and edit audio/MIDI clips

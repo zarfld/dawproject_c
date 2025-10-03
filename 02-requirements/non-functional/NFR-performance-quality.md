@@ -1,4 +1,19 @@
+---
+specType: requirements
+standard: "ISO/IEC/IEEE 29148:2018"
+phase: "02-requirements"
+version: "1.0.0"
+author: "Standards-Compliant Development Team"
+date: "2025-10-03"
+status: "draft"
+traceability:
+	stakeholderRequirements:
+		- "StR-010"
+---
+
 # Non-Functional Requirements: Performance & Quality Attributes
+
+Traceability Anchor: REQ-NF-001, REQ-NF-002, REQ-NF-003
 
 ## NFR-PERF-001: Large Project Loading Performance
 
