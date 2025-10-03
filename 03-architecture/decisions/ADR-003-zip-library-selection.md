@@ -1,3 +1,16 @@
+---
+specType: architecture
+standard: "ISO/IEC/IEEE 42010:2011"
+phase: "03-architecture"
+version: "1.0.0"
+author: "Architecture Team"
+date: "2025-10-03"
+status: "approved"
+traceability:
+	requirements:
+		- "REQ-F-001"
+---
+
 # ADR-003: ZIP Library Selection (minizip)
 
 **Status**: Accepted  

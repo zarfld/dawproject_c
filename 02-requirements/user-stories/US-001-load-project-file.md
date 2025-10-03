@@ -28,6 +28,8 @@ traceability:
 
 ## Acceptance Criteria
 
+Traceability References: REQ-F-001, REQ-F-002
+
 - [ ] **Simple API**: Load project with single function call `DawProject::load("file.dawproject")`
 - [ ] **Error Handling**: Clear error messages for malformed or missing files
 - [ ] **Data Access**: All project elements accessible through object-oriented interface

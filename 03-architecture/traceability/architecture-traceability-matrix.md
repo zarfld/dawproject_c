@@ -7,8 +7,8 @@ author: "Architecture Team"
 date: "2025-10-03"
 status: "draft"
 traceability:
-	requirements:
-		- "REQ-F-001"
+  requirements:
+    - "REQ-F-001"
 ---
 # Architecture Traceability Matrix
 

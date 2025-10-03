@@ -1,4 +1,3 @@
-# YAML front matter added for validator
 ---
 specType: architecture
 standard: "ISO/IEC/IEEE 42010:2011"
@@ -8,8 +7,8 @@ author: "Architecture Team"
 date: "2025-10-03"
 status: "draft"
 traceability:
-	requirements:
-		- "REQ-F-001"
+  requirements:
+    - "REQ-F-001"
 ---
 # Architecture Review Checklist
 
@@ -32,6 +31,16 @@ This checklist ensures all required artifacts and quality criteria for Phase 03 
 
 ## Review Status
 - [ ] All reviewers sign off on completeness and quality
+
+## Referenced ADRs
+- ADR-001
+- ADR-002
+- ADR-003
+- ADR-004
+- ADR-005
+- ADR-006
+- ADR-007
+- ADR-008
 
 ---
 

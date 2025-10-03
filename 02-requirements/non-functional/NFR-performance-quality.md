@@ -7,8 +7,8 @@ author: "Standards-Compliant Development Team"
 date: "2025-10-03"
 status: "draft"
 traceability:
-	stakeholderRequirements:
-		- "StR-010"
+  stakeholderRequirements:
+    - "StR-010"
 ---
 
 # Non-Functional Requirements: Performance & Quality Attributes
