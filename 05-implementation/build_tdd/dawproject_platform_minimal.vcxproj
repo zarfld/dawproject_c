@@ -278,6 +278,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemGroup>
     <ClCompile Include="D:\Repos\dawproject_c\05-implementation\src\platform\platform_factory.cpp" />
     <ClCompile Include="D:\Repos\dawproject_c\05-implementation\src\platform\filesystem_impl.cpp" />
+    <ClCompile Include="D:\Repos\dawproject_c\05-implementation\src\platform\threading_impl.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
