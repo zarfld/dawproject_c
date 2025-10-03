@@ -9,6 +9,7 @@
 #include <dawproject/platform/factory.h>
 #include "filesystem_impl.h"
 #include "threading_impl.h"
+#include "memory_impl.h"
 #include <memory>
 #include <stdexcept>
 
@@ -37,8 +38,8 @@ namespace dawproject::platform {
         }
 
         std::unique_ptr<IMemoryManager> createMemoryManager() override {
-            // RED: Return nullptr to make tests fail initially
-            return nullptr;
+            // GREEN: Return actual implementation
+            return std::make_unique<MemoryManagerImpl>();
         }
 
         SystemInfo getSystemInfo() override {

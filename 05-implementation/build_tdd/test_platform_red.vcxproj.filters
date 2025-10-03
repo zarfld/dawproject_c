@@ -7,6 +7,9 @@
     <ClCompile Include="D:\Repos\dawproject_c\05-implementation\tests\unit\test_platform_threading.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\Repos\dawproject_c\05-implementation\tests\unit\test_platform_memory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="D:\Repos\dawproject_c\05-implementation\tests\unit\CMakeLists.txt" />

@@ -25,6 +25,7 @@ add_library(dawproject_platform_minimal
     ../src/platform/platform_factory.cpp
     ../src/platform/filesystem_impl.cpp
     ../src/platform/threading_impl.cpp
+    ../src/platform/memory_impl.cpp
 )
 target_include_directories(dawproject_platform_minimal PUBLIC ../../include)
 target_compile_definitions(dawproject_platform_minimal PRIVATE _CRT_SECURE_NO_WARNINGS)
@@ -33,6 +34,7 @@ target_compile_definitions(dawproject_platform_minimal PRIVATE _CRT_SECURE_NO_WA
 add_executable(test_platform_red
     test_platform_filesystem.cpp
     test_platform_threading.cpp
+    test_platform_memory.cpp
 )
 
 target_link_libraries(test_platform_red 

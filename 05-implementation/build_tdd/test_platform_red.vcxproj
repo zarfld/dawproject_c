@@ -326,6 +326,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemGroup>
     <ClCompile Include="D:\Repos\dawproject_c\05-implementation\tests\unit\test_platform_filesystem.cpp" />
     <ClCompile Include="D:\Repos\dawproject_c\05-implementation\tests\unit\test_platform_threading.cpp" />
+    <ClCompile Include="D:\Repos\dawproject_c\05-implementation\tests\unit\test_platform_memory.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

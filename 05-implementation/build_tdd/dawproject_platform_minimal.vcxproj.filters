@@ -10,6 +10,9 @@
     <ClCompile Include="D:\Repos\dawproject_c\05-implementation\src\platform\threading_impl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\Repos\dawproject_c\05-implementation\src\platform\memory_impl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="D:\Repos\dawproject_c\05-implementation\tests\unit\CMakeLists.txt" />
