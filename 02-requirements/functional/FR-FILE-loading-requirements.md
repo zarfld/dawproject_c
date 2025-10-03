@@ -1,3 +1,17 @@
+---
+specType: requirements
+standard: "ISO/IEC/IEEE 29148:2018"
+phase: "02-requirements"
+version: "1.0.0"
+author: "Standards-Compliant Development Team"
+date: "2025-01-27"
+status: "draft"
+traceability:
+  stakeholderRequirements:
+    - "StR-001"
+    - "StR-002"
+---
+
 # Functional Requirement: DAW Project File Loading
 
 ## FR-FILE-001: Load DAW Project File

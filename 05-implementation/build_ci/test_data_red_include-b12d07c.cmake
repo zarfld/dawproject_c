@@ -1,0 +1,5 @@
+if(EXISTS "D:/Repos/dawproject_c/05-implementation/build_ci/test_data_red_tests-b12d07c.cmake")
+  include("D:/Repos/dawproject_c/05-implementation/build_ci/test_data_red_tests-b12d07c.cmake")
+else()
+  add_test(test_data_red_NOT_BUILT-b12d07c test_data_red_NOT_BUILT-b12d07c)
+endif()

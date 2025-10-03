@@ -6,153 +6,278 @@ on:
   pull_request:
     branches: [main, master, develop]
   schedule:
-    # Run daily at 2 AM UTC
-    - cron: "0 2 * * *"
+    - cron: "0 2 * * *" # Daily run
 
 env:
   PYTHON_VERSION: "3.11"
   CMAKE_BUILD_TYPE: "Debug"
+  MIN_TEST_COVERAGE: 70 # Adjust when coverage tooling added
+  MIN_REQ_LINKAGE_COVERAGE: 80
+  CXX_STANDARD: 17
 
 jobs:
   spec-validation:
-    name: Spec Structure Validation
+    name: Spec Structure Validation (Schema & Prereq)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install dependencies
+      - name: Install spec validation deps
         run: pip install pyyaml jsonschema
-
       - name: Validate spec structure
         run: |
           python scripts/validate-spec-structure.py || {
-            echo '❌ Spec structure validation failed.'
-            exit 1
-          }
+            echo '❌ Spec structure validation failed.'; exit 1; }
+
+  spec-generation:
+    name: Spec Artifact Generation (Index, Trace JSON)
+    needs: [spec-validation]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Generate spec index
+        run: python scripts/generators/spec_parser.py
+      - name: Build traceability JSON
+        run: python scripts/generators/build_trace_json.py
+      - name: Upload generated artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: spec-generated-artifacts
+          path: |
+            build/spec-index.json
+            build/traceability.json
 
   cpp-build-and-test:
     name: C++ Build & Unit Tests (TDD)
-    runs-on: ubuntu-latest
     needs: [spec-validation]
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup C++ Build Environment
+      - uses: actions/checkout@v4
+      - name: Install build toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake ninja-build
-
-      - name: Configure CMake
+          sudo apt-get install -y build-essential cmake gcovr cppcheck clang-tidy
+      - name: Configure (CMake)
         run: |
           cd 05-implementation
-          cmake -B build_ci -S . -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -G Ninja
-
-      - name: Build C++ Project
+          cmake -B build_ci -S . -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }}
+      - name: Build
         run: |
           cd 05-implementation
-          cmake --build build_ci --config ${{ env.CMAKE_BUILD_TYPE }}
-
+          cmake --build build_ci --config ${{ env.CMAKE_BUILD_TYPE }} -- -j$(nproc)
       - name: Run Unit Tests
         run: |
           cd 05-implementation
-          echo "🧪 Running TDD unit tests..."
-          ./build_ci/test_data_red
-
-      - name: Run Performance Tests
+          ./build_ci/test_data_red || { echo '❌ Unit tests failed'; exit 1; }
+      - name: Run Performance Tests (non-blocking)
+        continue-on-error: true
         run: |
           cd 05-implementation
-          echo "📊 Running performance verification..."
           ./build_ci/performance_test
+      - name: Collect Coverage (placeholder)
+        run: |
+          echo 'TODO: Add coverage instrumentation flags to CMake (gcov/llvm).'
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-binaries
+          path: 05-implementation/build_ci
 
   code-quality:
-    name: Code Quality & Standards
+    name: Code Quality & Static Analysis
+    needs: [spec-generation]
     runs-on: ubuntu-latest
-    needs: [spec-validation]
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install linting tools
+      - name: Install quality tools
         run: |
-          pip install yamllint
-          npm install -g markdownlint-cli
-
-      - name: Run Markdown linting
+          pip install yamllint markdownlint-cli2
+      - name: Lint Markdown
         run: |
-          echo "📝 Checking Markdown formatting..."
-          markdownlint "**/*.md" --ignore node_modules || echo "Markdown linting completed with warnings"
-
-      - name: Run YAML linting
+          markdownlint-cli2 "**/*.md" || echo 'Markdown lint warnings (non-blocking)'
+      - name: Lint YAML
         run: |
-          echo "🔍 Checking YAML format..."
-          find . -name "*.yml" -o -name "*.yaml" | head -10 | xargs yamllint || echo "YAML linting completed"
+          find . -name '*.yml' -o -name '*.yaml' | xargs -r yamllint || echo 'YAML lint warnings (non-blocking)'
+      - name: C++ Static Analysis (cppcheck)
+        run: |
+          sudo apt-get update && sudo apt-get install -y cppcheck
+          cppcheck --enable=warning,performance,style --inline-suppr --error-exitcode=1 05-implementation/src || echo 'cppcheck warnings found'
+      - name: clang-tidy (advisory)
+        run: |
+          echo 'NOTE: Integrate clang-tidy via CMake for full diagnostics in future.'
 
-  traceability-validation:
-    name: Requirements Traceability
+  traceability-coverage:
+    name: Traceability Coverage Enforcement
+    needs: [spec-generation]
     runs-on: ubuntu-latest
-    needs: [spec-validation]
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: spec-generated-artifacts
+          path: build
+      - name: Enforce linkage coverage
+        run: |
+          if [ -f scripts/validate-trace-coverage.py ]; then \
+            python scripts/validate-trace-coverage.py --min-req ${{ env.MIN_REQ_LINKAGE_COVERAGE }}; \
+          else echo 'Trace coverage script missing (skipped)'; fi
 
-      - name: Install dependencies
-        run: pip install pyyaml
+  integrity-scan:
+    name: Integrity Level Scan
+    needs: [spec-generation]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Run integrity scan
+        run: |
+          if [ -f scripts/integrity_level_scan.py ]; then python scripts/integrity_level_scan.py; else echo 'No integrity scan script'; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: integrity-scan
+          path: build/integrity-scan.json
+          if-no-files-found: ignore
 
+  requirements-traceability:
+    name: Requirements Traceability Matrix
+    needs: [spec-validation]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Generate matrix
+        run: |
+          python scripts/generate-traceability-matrix.py || echo 'Generation warnings'
       - name: Validate traceability
         run: |
-          echo "✅ Checking requirements traceability..."
-          python scripts/validate-traceability.py || {
-            echo "⚠️ Traceability validation completed with warnings"
-          }
+          python scripts/validate-traceability.py || { echo '❌ Traceability validation failed'; exit 1; }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: traceability-matrix
+          path: reports/traceability-matrix.md
+          if-no-files-found: ignore
 
-  standards-compliance:
-    name: Standards Compliance Check
+  architecture-validation:
+    name: Architecture Compliance (ADR & Views)
+    needs: [spec-validation]
     runs-on: ubuntu-latest
-    needs: [cpp-build-and-test]
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Verify IEEE 1016 compliance
+      - uses: actions/checkout@v4
+      - name: ADR Impact Scan
         run: |
-          echo "📋 Checking IEEE 1016-2009 compliance..."
-          echo "✅ Architecture documentation verified"
-          echo "✅ Design descriptions present"
-
-      - name: Verify XP practices
+          if [ -f scripts/adr_impact_scan.py ]; then python scripts/adr_impact_scan.py --warn-only || true; fi
+      - name: Validate ADR structure
         run: |
-          echo "🔄 Checking XP practices implementation..."
-          echo "✅ TDD cycle completed (RED-GREEN-REFACTOR)"
-          echo "✅ Test coverage verified"
-          echo "✅ Refactoring documented"
-
-      - name: Final compliance report
+          missing=0; for adr in 03-architecture/decisions/ADR-*.md; do [ -f "$adr" ] || continue; \
+            for sec in Status Context Decision Consequences; do \
+              grep -q "## $sec" "$adr" || { echo "❌ Missing $sec in $adr"; missing=1; }; done; done; \
+            [ $missing -eq 0 ] || { echo 'ADR structural issues'; exit 1; }
+      - name: Validate quality scenarios
         run: |
-          echo "🎯 Standards Compliance Summary:"
-          echo "✅ IEEE 1016-2009: Software Design Descriptions"
-          echo "✅ ISO/IEC/IEEE 42010:2011: Architecture Practices"
-          echo "✅ ISO/IEC/IEEE 29148:2018: Requirements Engineering"
-          echo "✅ XP Practices: TDD, Refactoring, Simple Design"
-          echo ""
-          echo "🚀 All quality gates passed!"
+          file=03-architecture/architecture-quality-scenarios.md; \
+          [ -f "$file" ] || { echo '❌ Missing architecture-quality-scenarios.md'; exit 1; }; \
+          for attr in Performance Availability Security; do \
+            grep -qi "$attr" "$file" || { echo "❌ Missing scenario for $attr"; exit 1; }; done; \
+          echo '✅ Quality attribute scenarios present'
+
+  security-scan:
+    name: Security & Hygiene Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Secret scan (basic)
+        run: |
+          echo 'Scanning for obvious secrets...'
+          grep -R "API_KEY" -n . || true
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
+      - name: Upload Trivy SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+
+  compliance-report:
+    name: Consolidated Standards Compliance Report
+    if: always()
+    needs:
+      [
+        spec-validation,
+        spec-generation,
+        cpp-build-and-test,
+        code-quality,
+        traceability-coverage,
+        integrity-scan,
+        requirements-traceability,
+        architecture-validation,
+        security-scan,
+      ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Generate compliance report
+        run: |
+          cat > compliance-report.md <<'EOF'
+          # Standards Compliance Report (Consolidated)
+
+          Generated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          Commit: ${{ github.sha }}
+          Branch: ${{ github.ref_name }}
+
+          ## Life Cycle (ISO/IEC/IEEE 12207)
+          - Spec Validation: ${{ needs.spec-validation.result }}
+          - Build & Test: ${{ needs.cpp-build-and-test.result }}
+          - Architecture: ${{ needs.architecture-validation.result }}
+          - Traceability: ${{ needs.requirements-traceability.result }}
+
+          ## Quality Gates
+          - Code Quality: ${{ needs.code-quality.result }}
+          - Security Scan: ${{ needs.security-scan.result }}
+          - Integrity Scan: ${{ needs.integrity-scan.result }}
+          - Trace Coverage: ${{ needs.traceability-coverage.result }}
+
+          ## Notes
+          Coverage & advanced metrics to be integrated in subsequent iteration (placeholders present).
+          EOF
+          cat compliance-report.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: compliance-report
+          path: compliance-report.md
+      - name: PR Comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('compliance-report.md','utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });
+

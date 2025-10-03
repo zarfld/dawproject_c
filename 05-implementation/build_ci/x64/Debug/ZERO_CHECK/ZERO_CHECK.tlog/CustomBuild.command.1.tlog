@@ -1,0 +1,10 @@
+^D:\REPOS\DAWPROJECT_C\05-IMPLEMENTATION\BUILD_CI\CMAKEFILES\372A1BD3110382F35186ECA7C995010D\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Repos/dawproject_c/05-implementation -BD:/Repos/dawproject_c/05-implementation/build_ci --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/Repos/dawproject_c/05-implementation/build_ci/dawproject_c.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/Repos/dawproject_c/05-implementation/build_ci/_deps/catch2-subbuild/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

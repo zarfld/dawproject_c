@@ -1,0 +1,10 @@
+^D:\REPOS\DAWPROJECT_C\05-IMPLEMENTATION\BUILD_CI\_DEPS\PUGIXML-SRC\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Repos/dawproject_c/05-implementation -BD:/Repos/dawproject_c/05-implementation/build_ci --check-stamp-file D:/Repos/dawproject_c/05-implementation/build_ci/_deps/pugixml-build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

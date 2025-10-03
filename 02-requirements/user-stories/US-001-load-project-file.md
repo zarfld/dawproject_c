@@ -1,3 +1,16 @@
+---
+specType: requirements
+standard: "ISO/IEC/IEEE 29148:2018"
+phase: "02-requirements"
+version: "1.0.0"
+author: "Standards-Compliant Development Team"
+date: "2025-01-27"
+status: "draft"
+traceability:
+  stakeholderRequirements:
+    - "StR-001"
+---
+
 # User Story: Load DAW Project File
 
 **US-001**: As a DAW developer, I want to load a DAW Project file with simple API calls, so that I can quickly implement DAW Project support in my application.
