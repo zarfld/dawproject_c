@@ -315,19 +315,16 @@ jobs:
     name: Consolidated Standards Compliance Report
     if: always()
     needs:
-      - spec-validation
-      - spec-generation
-      - unit-tests
-      - coverage-build
-      - code-quality
-      - integration-tests
-      - deploy-staging
-      - acceptance-tests
-      - traceability-coverage
-      - integrity-scan
-      - requirements-traceability
-      - architecture-validation
-      - security-scan
+      [
+        spec-validation,
+        code-quality,
+        unit-tests,
+        integration-tests,
+        requirements-traceability,
+        acceptance-tests,
+        architecture-validation,
+        security-scan,
+      ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
