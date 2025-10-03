@@ -17,6 +17,11 @@ env:
   CXX_STANDARD: 17
   BUILD_DIR: build/ci
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 jobs:
   spec-validation:
     name: Requirements Traceability (ISO/IEC/IEEE 29148)
@@ -57,7 +62,6 @@ jobs:
   # Phase 05: TDD - Test-Driven Development
   unit-tests:
     name: Unit Tests (XP - TDD Red-Green-Refactor)
-    needs: [spec-validation]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
