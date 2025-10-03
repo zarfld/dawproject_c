@@ -1,0 +1,10 @@
+D:/Repos/dawproject_c/05-implementation/build_tdd/CMakeFiles/dawproject_platform_minimal.dir
+D:/Repos/dawproject_c/05-implementation/build_tdd/CMakeFiles/test_platform_red.dir
+D:/Repos/dawproject_c/05-implementation/build_tdd/CMakeFiles/RUN_TESTS.dir
+D:/Repos/dawproject_c/05-implementation/build_tdd/CMakeFiles/ALL_BUILD.dir
+D:/Repos/dawproject_c/05-implementation/build_tdd/CMakeFiles/ZERO_CHECK.dir
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/catch2-build/CMakeFiles/RUN_TESTS.dir
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/catch2-build/CMakeFiles/ALL_BUILD.dir
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/catch2-build/src/CMakeFiles/Catch2.dir
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/catch2-build/src/CMakeFiles/Catch2WithMain.dir
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/catch2-build/src/CMakeFiles/RUN_TESTS.dir
