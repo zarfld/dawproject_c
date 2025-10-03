@@ -1,0 +1,14 @@
+# Target labels
+ pugixml-populate
+# Source files and their labels
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/pugixml-populate
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/6ae725a8458dbca22a7443b7e9c51d0d/pugixml-populate.rule
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/ae79e055041f021541c148906dbd09d4/pugixml-populate-complete.rule
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-build.rule
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-configure.rule
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-download.rule
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-install.rule
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-mkdir.rule
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-patch.rule
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-test.rule
+D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-update.rule

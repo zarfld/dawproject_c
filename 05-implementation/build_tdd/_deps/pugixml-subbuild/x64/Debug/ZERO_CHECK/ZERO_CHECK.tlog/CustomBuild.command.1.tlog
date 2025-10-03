@@ -1,0 +1,10 @@
+^D:\REPOS\DAWPROJECT_C\05-IMPLEMENTATION\BUILD_TDD\_DEPS\PUGIXML-SUBBUILD\CMAKEFILES\6AE725A8458DBCA22A7443B7E9C51D0D\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild -BD:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/pugixml-populate.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

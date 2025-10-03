@@ -37,11 +37,12 @@ size_t FileInputStreamImpl::read(void* buffer, size_t size) {
 }
 
 bool FileInputStreamImpl::seek(int64_t offset, SeekOrigin origin) {
-    std::ios_base::seekdir dir;
+    std::ios_base::seekdir dir = std::ios_base::beg;
     switch (origin) {
         case SeekOrigin::Begin: dir = std::ios_base::beg; break;
         case SeekOrigin::Current: dir = std::ios_base::cur; break;
         case SeekOrigin::End: dir = std::ios_base::end; break;
+        default: dir = std::ios_base::beg; break;
     }
     file_.seekg(offset, dir);
     return !file_.fail();
@@ -75,11 +76,12 @@ size_t FileOutputStreamImpl::write(const void* buffer, size_t size) {
 }
 
 bool FileOutputStreamImpl::seek(int64_t offset, SeekOrigin origin) {
-    std::ios_base::seekdir dir;
+    std::ios_base::seekdir dir = std::ios_base::beg;
     switch (origin) {
         case SeekOrigin::Begin: dir = std::ios_base::beg; break;
         case SeekOrigin::Current: dir = std::ios_base::cur; break;
         case SeekOrigin::End: dir = std::ios_base::end; break;
+        default: dir = std::ios_base::beg; break;
     }
     file_.seekp(offset, dir);
     return !file_.fail();

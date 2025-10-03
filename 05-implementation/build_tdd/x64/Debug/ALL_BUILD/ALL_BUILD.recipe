@@ -5,7 +5,22 @@
       <FullPath>D:\Repos\dawproject_c\05-implementation\build_tdd\x64\Debug\ZERO_CHECK</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>D:\Repos\dawproject_c\05-implementation\build_tdd\Debug\test_platform_red.exe</FullPath>
+      <FullPath>D:\Repos\dawproject_c\05-implementation\build_tdd\_deps\catch2-build\src\Debug\Catch2d.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Repos\dawproject_c\05-implementation\build_tdd\_deps\catch2-build\src\Debug\Catch2Maind.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Repos\dawproject_c\05-implementation\build_tdd\_deps\pugixml-build\Debug\pugixml.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Repos\dawproject_c\05-implementation\build_tdd\Debug\performance_test.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Repos\dawproject_c\05-implementation\build_tdd\Debug\red_phase_runner.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Repos\dawproject_c\05-implementation\build_tdd\Debug\test_data_red.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
       <FullPath>D:\Repos\dawproject_c\05-implementation\build_tdd\x64\Debug\ALL_BUILD</FullPath>

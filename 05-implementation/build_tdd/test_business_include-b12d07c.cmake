@@ -1,0 +1,5 @@
+if(EXISTS "D:/Repos/dawproject_c/05-implementation/build_tdd/test_business_tests-b12d07c.cmake")
+  include("D:/Repos/dawproject_c/05-implementation/build_tdd/test_business_tests-b12d07c.cmake")
+else()
+  add_test(test_business_NOT_BUILT-b12d07c test_business_NOT_BUILT-b12d07c)
+endif()

@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/pugixml-populate"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/6ae725a8458dbca22a7443b7e9c51d0d/pugixml-populate.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/ae79e055041f021541c148906dbd09d4/pugixml-populate-complete.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-build.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-configure.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-download.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-install.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-mkdir.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-patch.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-test.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/build_tdd/_deps/pugixml-subbuild/CMakeFiles/82102c03863647dc2e2bf2370d5f4e39/pugixml-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"pugixml-populate"
+		],
+		"name" : "pugixml-populate"
+	}
+}

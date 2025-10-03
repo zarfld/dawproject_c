@@ -43,6 +43,7 @@ public:
     // Directory operations - minimal implementation
     bool createDirectory(const std::filesystem::path& path, 
                         bool recursive = true) override {
+        (void)recursive; // Suppress unused parameter warning
         return std::filesystem::create_directories(path);
     }
 

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\Repos\dawproject_c\05-implementation\build_tdd\CMakeFiles\4ba6d06fc0a1a38e0d7e33210ad5fa5a\tdd.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\Repos\dawproject_c\05-implementation\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="D:\Repos\dawproject_c\05-implementation\build_tdd\CMakeFiles\tdd" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{AE705947-EE40-3672-864E-5AE599BFF785}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

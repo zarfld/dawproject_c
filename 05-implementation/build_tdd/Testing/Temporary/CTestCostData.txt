@@ -1,3 +1,49 @@
 PlatformTests 0 0
+test_data_red_NOT_BUILT-b12d07c 0 0
+Data Access Factory - Create Engine 0 0
+Data Access Factory - Create XML Processor 0 0
+Data Access Factory - Create ZIP Processor 0 0
+Project Info - Validation 0 0
+Track Info - Validation 0 0
+Clip Info - Validation 0 0
+Validation Result - Operations 0 0
+Result Template - Success Case 0 0
+Result Template - Error Case 0 0
+Archive Entry - Validation 0 0
+XML Document - Helper Methods 0 0
+Data Access Engine - Load Project Info 0 0
+Data Access Engine - Load Tracks 0 0
+Data Access Engine - Load Clips 0 0
+Data Access Engine - Validate File 0 0
+Data Access Engine - Is Valid Project File 0 0
+Data Access Engine - Create Reader 0 0
+Data Access Engine - Create Writer 0 0
+XML Processor - Load Document 0 0
+XML Processor - Parse Document 0 0
+ZIP Processor - List Entries 0 0
+ZIP Processor - Extract Entry 0 0
+ZIP Processor - Is Valid Archive 0 0
 ---
-PlatformTests
+Data Access Factory - Create Engine
+Data Access Factory - Create XML Processor
+Data Access Factory - Create ZIP Processor
+Project Info - Validation
+Track Info - Validation
+Clip Info - Validation
+Validation Result - Operations
+Result Template - Success Case
+Result Template - Error Case
+Archive Entry - Validation
+XML Document - Helper Methods
+Data Access Engine - Load Project Info
+Data Access Engine - Load Tracks
+Data Access Engine - Load Clips
+Data Access Engine - Validate File
+Data Access Engine - Is Valid Project File
+Data Access Engine - Create Reader
+Data Access Engine - Create Writer
+XML Processor - Load Document
+XML Processor - Parse Document
+ZIP Processor - List Entries
+ZIP Processor - Extract Entry
+ZIP Processor - Is Valid Archive
