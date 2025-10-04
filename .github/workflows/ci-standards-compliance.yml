@@ -448,16 +448,45 @@ jobs:
           - Coverage Job: ${{ needs.coverage-build.result }}
 
           ## Traceability Metrics (Targets: Req>=${{ env.MIN_REQ_LINKAGE_COVERAGE }}%, ADR>=${{ env.MIN_REQ_ADR_COVERAGE }}%, Scenario>=${{ env.MIN_REQ_SCENARIO_COVERAGE }}%, Test>=${{ env.MIN_REQ_TEST_COVERAGE }}%)
-          (See artifacts for detailed JSON if produced.)
-
-          ## Security Artifacts
-          - SBOM (CycloneDX): generated if security scan succeeded
-          - Trivy SARIF: uploaded (filesystem scan)
-          - Gitleaks SARIF: uploaded (advisory)
-
-          ## Notes
-          Coverage & advanced metrics to be integrated in subsequent iteration (placeholders present).
           EOF
+          TRACE_JSON=$(find artifacts -name traceability.json | head -n 1 || true)
+          if [ -f "$TRACE_JSON" ]; then
+            echo "Found traceability metrics at $TRACE_JSON"
+            if ! command -v jq >/dev/null 2>&1; then
+              echo 'Installing jq for JSON parsing...'
+              sudo apt-get update -y >/dev/null 2>&1 && sudo apt-get install -y jq >/dev/null 2>&1 || echo 'jq install failed'
+            fi
+            if command -v jq >/dev/null 2>&1; then
+              {
+                echo '| Dimension | Coverage | Threshold | Pass |';
+                echo '|-----------|----------|-----------|------|';
+                for dim in requirement_to_ADR requirement_to_scenario requirement_to_test; do
+                  cov=$(jq -r ".metrics.$dim.coverage_pct" "$TRACE_JSON" 2>/dev/null || echo '0')
+                  case $dim in
+                    requirement_to_ADR) thr=${{ env.MIN_REQ_ADR_COVERAGE }} ; label='Req→ADR' ;;
+                    requirement_to_scenario) thr=${{ env.MIN_REQ_SCENARIO_COVERAGE }} ; label='Req→Scenario' ;;
+                    requirement_to_test) thr=${{ env.MIN_REQ_TEST_COVERAGE }} ; label='Req→Test' ;;
+                  esac
+                  pass='❌'
+                  awk "BEGIN{exit !($cov >= thr)}" && pass='✅'
+                  echo "| $label | ${cov}% | ${thr}% | $pass |"
+                done
+              } >> compliance-report.md
+            else
+              echo 'jq unavailable; raw JSON attached as artifact.' >> compliance-report.md
+            fi
+          else
+            echo 'Traceability metrics JSON not found in artifacts.' >> compliance-report.md
+          fi
+          {
+            echo ''; echo '## Security Artifacts';
+            echo ' - SBOM (CycloneDX): generated if security scan succeeded';
+            echo ' - Trivy SARIF: uploaded (filesystem scan)';
+            echo ' - Gitleaks SARIF: uploaded (advisory)';
+            echo ''; echo '## Notes';
+            echo ' Dynamic traceability metrics integrated; future enhancements: per-requirement status table & historical trend graph.';
+          } >> compliance-report.md
+          echo '--- Compliance Report ---'
           cat compliance-report.md
       - uses: actions/upload-artifact@v4
         with:

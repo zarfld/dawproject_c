@@ -1,6 +1,6 @@
 /**
  * TEST-UNIT-MEMORY-001
- * Trace: REQ-F-001, REQ-NF-P-001, REQ-NF-P-002, REQ-NF-R-001, REQ-NF-R-002, REQ-NF-M-001, REQ-NF-M-002, REQ-NF-SC-001, REQ-NF-C-001
+ * Trace: REQ-F-001, REQ-F-002, REQ-F-003, REQ-NF-P-001, REQ-NF-P-002, REQ-NF-R-001, REQ-NF-R-002, REQ-NF-M-001, REQ-NF-M-002, REQ-NF-SC-001, REQ-NF-C-001
  *
  * @file test_platform_memory.cpp  
  * @brief RED Phase Tests for Platform Memory Manager Interface
