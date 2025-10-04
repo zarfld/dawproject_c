@@ -318,6 +318,11 @@ public:
     };
 };
 
+    ## Related Requirements (Augmented)
+
+    Added linkage for broader coverage:
+    - REQ-NF-C-001
+
 // C API implementation using bridge
 extern "C" dawproject_error_t dawproject_load(const char* filepath, 
                                              dawproject_project_handle* project) {

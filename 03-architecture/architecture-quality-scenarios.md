@@ -50,6 +50,8 @@ response: Returns requested data
 responseMeasure: p95 < 200ms, p99 < 500ms
 relatedRequirements:
   - REQ-NF-P-001
+  - REQ-NF-P-002
+  - REQ-NF-M-001
 relatedADRs:
   - ADR-002
 relatedViews:
@@ -71,6 +73,8 @@ response: Automatic failover to standby
 responseMeasure: RTO < 60s, RPO = 0
 relatedRequirements:
   - REQ-NF-R-002
+  - REQ-NF-R-001
+  - REQ-NF-SC-001
 relatedADRs:
   - ADR-003
 relatedViews:
@@ -92,6 +96,7 @@ response: Rate limiting, anomaly detection triggers, suspicious IPs blocked
 responseMeasure: > 95% attacks blocked, < 1% false positives, no user data compromised
 relatedRequirements:
   - REQ-NF-S-001
+  - REQ-NF-C-001
 relatedADRs:
   - ADR-004
 relatedViews:
@@ -100,14 +105,42 @@ validationMethod: security test
 status: draft
 ```
 
+### QA-SC-004 Maintainability & Scalability - Optimization Cycle
+```yaml
+id: QA-SC-004
+qualityAttribute: Maintainability
+source: Developer refactors core module
+stimulus: Code hot path identified requiring optimization
+stimulusEnvironment: Normal Operation
+artifact: Core Engine + Build System
+response: Refactor applied with no regression; build and tests complete under target time, memory stable
+responseMeasure: Refactor cycle < 15 min, test suite < 5 min, no increase in memory footprint
+relatedRequirements:
+  - REQ-NF-M-001
+  - REQ-NF-M-002
+  - REQ-NF-P-002
+  - REQ-NF-SC-001
+relatedADRs:
+  - ADR-005
+  - ADR-008
+relatedViews:
+  - logical
+  - process
+validationMethod: benchmark
+status: draft
+```
+
 ## Coverage Matrix
+
 | Scenario ID | Quality Attribute | Requirements | ADRs | Views | Validation Method | Status |
 |-------------|-------------------|--------------|------|-------|-------------------|--------|
-| QA-SC-001 | Performance | REQ-NF-P-001 | ADR-002 | logical, process | benchmark | draft |
-| QA-SC-002 | Availability | REQ-NF-R-002 | ADR-003 | deployment, data | chaos test | draft |
-| QA-SC-003 | Security | REQ-NF-S-001 | ADR-004 | security | security test | draft |
+| QA-SC-001 | Performance | REQ-NF-P-001, REQ-NF-P-002, REQ-NF-M-001 | ADR-002 | logical, process | benchmark | draft |
+| QA-SC-002 | Availability | REQ-NF-R-002, REQ-NF-R-001, REQ-NF-SC-001 | ADR-003 | deployment, data | chaos test | draft |
+| QA-SC-003 | Security | REQ-NF-S-001, REQ-NF-C-001 | ADR-004 | security | security test | draft |
+| QA-SC-004 | Maintainability | REQ-NF-M-001, REQ-NF-M-002, REQ-NF-P-002, REQ-NF-SC-001 | ADR-005, ADR-008 | logical, process | benchmark | draft |
 
 ## Definition of Done
+
 - At least one scenario per prioritized quality attribute
 - Each scenario traces to at least one requirement
 - Each scenario traces to at least one architecture view and ADR
@@ -116,6 +149,7 @@ status: draft
 - Gaps identified for missing attributes (mark as TODO)
 
 ## Review Checklist
+
 - [ ] Scenarios follow structured template
 - [ ] Metrics are quantifiable
 - [ ] No ambiguous adjectives ("fast", "secure") without metrics
