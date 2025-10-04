@@ -30,7 +30,8 @@ BUILD_DIR = ROOT / 'build'
 OUTPUT_FILE = BUILD_DIR / 'spec-index.json'
 
 ID_PATTERN = re.compile(r'^(?P<id>(StR|REQ|ARC|ADR|QA|TEST)[A-Z0-9\-]+)\b')
-REF_PATTERN = re.compile(r'\b(StR|REQ|ARC|ADR|QA|TEST)[A-Z0-9\-]+\b')
+# Capture full identifiers (previous pattern only yielded the prefix token via findall grouping)
+REF_PATTERN = re.compile(r'\b(?:StR|REQ|ARC|ADR|QA|TEST)[A-Z0-9\-]+\b')
 
 SCAN_DIRS = [
     ROOT / '02-requirements',
