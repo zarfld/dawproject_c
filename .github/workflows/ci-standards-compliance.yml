@@ -191,6 +191,28 @@ jobs:
         with:
           name: spec-generated-artifacts
           path: build
+      - name: Unlinked Requirements Guard (ADR linkage completeness)
+        run: |
+          echo 'Running unlinked requirements check (fail if any requirement lacks ADR linkage)...'
+          if [ -f scripts/trace_unlinked_requirements.py ]; then
+            python scripts/trace_unlinked_requirements.py --json > build/unlinked.json
+            if grep -q '"count": 0' build/unlinked.json; then
+              echo 'All requirements have ADR linkage.'
+            else
+              echo 'UNLINKED requirements detected:'
+              cat build/unlinked.json
+              exit 1
+            fi
+          else
+            echo 'trace_unlinked_requirements.py script missing (skipping)'
+          fi
+      - name: Upload Unlinked Requirements Report (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unlinked-requirements
+          path: build/unlinked.json
+          if-no-files-found: ignore
       - name: Enforce linkage coverage
         run: |
           if [ -f scripts/validate-trace-coverage.py ]; then \
