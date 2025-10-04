@@ -52,6 +52,8 @@ relatedRequirements:
   - REQ-NF-P-001
   - REQ-NF-P-002
   - REQ-NF-M-001
+  - REQ-F-002 # Added (function call orchestration impacts latency)
+  - REQ-F-003 # Added (data transformation pipeline influences response time)
 relatedADRs:
   - ADR-002
 relatedViews:
@@ -61,7 +63,8 @@ validationMethod: benchmark
 status: draft
 ```
 
-### QA-SC-002 Availability - Primary Database Failure
+\n### QA-SC-002 Availability - Primary Database Failure
+
 ```yaml
 id: QA-SC-002
 qualityAttribute: Availability
@@ -84,7 +87,8 @@ validationMethod: chaos test
 status: draft
 ```
 
-### QA-SC-003 Security - Credential Stuffing Attack
+\n### QA-SC-003 Security - Credential Stuffing Attack
+
 ```yaml
 id: QA-SC-003
 qualityAttribute: Security
@@ -105,7 +109,8 @@ validationMethod: security test
 status: draft
 ```
 
-### QA-SC-004 Maintainability & Scalability - Optimization Cycle
+\n### QA-SC-004 Maintainability & Scalability - Optimization Cycle
+
 ```yaml
 id: QA-SC-004
 qualityAttribute: Maintainability
@@ -134,7 +139,7 @@ status: draft
 
 | Scenario ID | Quality Attribute | Requirements | ADRs | Views | Validation Method | Status |
 |-------------|-------------------|--------------|------|-------|-------------------|--------|
-| QA-SC-001 | Performance | REQ-NF-P-001, REQ-NF-P-002, REQ-NF-M-001 | ADR-002 | logical, process | benchmark | draft |
+| QA-SC-001 | Performance | REQ-NF-P-001, REQ-NF-P-002, REQ-NF-M-001, REQ-F-002, REQ-F-003 | ADR-002 | logical, process | benchmark | draft |
 | QA-SC-002 | Availability | REQ-NF-R-002, REQ-NF-R-001, REQ-NF-SC-001 | ADR-003 | deployment, data | chaos test | draft |
 | QA-SC-003 | Security | REQ-NF-S-001, REQ-NF-C-001 | ADR-004 | security | security test | draft |
 | QA-SC-004 | Maintainability | REQ-NF-M-001, REQ-NF-M-002, REQ-NF-P-002, REQ-NF-SC-001 | ADR-005, ADR-008 | logical, process | benchmark | draft |
