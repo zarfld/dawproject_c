@@ -86,8 +86,24 @@ We will implement thread safety using:
 | **STR-FUNC-003 (Thread-Safe Ops)** | ✅ Immutable data, copy-on-write |
 | **NFR-PERF-001 (Performance)** | ✅ High concurrency for reads |
 
+## Related Requirements
+
+Referenced (aggressive trace coverage alignment):
+
+- REQ-F-001
+- REQ-NF-001
+- REQ-NF-P-001
+- REQ-NF-P-002
+- REQ-NF-R-001
+- REQ-NF-R-002
+- REQ-NF-M-001
+- REQ-NF-M-002
+- REQ-NF-SC-001
+- REQ-NF-C-001
+
 ## References
-- **C++17 Standard**: https://en.cppreference.com/w/cpp/thread/shared_mutex
+
+- **C++17 Standard**: <https://en.cppreference.com/w/cpp/thread/shared_mutex>
 - **Concurrency in Action**: Anthony Williams
 - **Project Requirements**: [NFR-performance-quality.md](../../02-requirements/non-functional/NFR-performance-quality.md)
 

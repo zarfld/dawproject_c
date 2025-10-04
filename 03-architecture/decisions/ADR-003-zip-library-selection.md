@@ -97,10 +97,26 @@ We will use **minizip** (from the zlib distribution) as the primary ZIP archive 
 | **NFR-COMPAT-001 (Cross-Platform)** | ✅ All platforms supported |
 | **NFR-PERF-002 (Memory Usage)** | ✅ Streaming, no full extraction |
 
+## Related Requirements
+
+Referenced (aggressive trace coverage alignment):
+
+- REQ-F-001
+- REQ-NF-001
+- REQ-NF-P-001
+- REQ-NF-P-002
+- REQ-NF-R-001
+- REQ-NF-R-002
+- REQ-NF-M-001
+- REQ-NF-M-002
+- REQ-NF-SC-001
+- REQ-NF-C-001
+
 ## References
-- **minizip**: https://github.com/zlib-ng/minizip-ng
-- **libzip**: https://libzip.org/
-- **DAW Project Standard**: https://github.com/bitwig/dawproject
+
+- **minizip**: <https://github.com/zlib-ng/minizip-ng>
+- **libzip**: <https://libzip.org/>
+- **DAW Project Standard**: <https://github.com/bitwig/dawproject>
 
 ---
 
