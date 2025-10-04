@@ -46,6 +46,21 @@ CODE_TEST_DIRS = [
 
 FRONT_MATTER_RE = re.compile(r'^---\n(.*?)\n---\n', re.DOTALL)
 
+# Files / paths to ignore (instructional, templates, meta guidance) – we do not want
+# placeholder IDs here (e.g. REQ-F-XXX) polluting traceability metrics.
+IGNORE_PATTERNS = [
+    '.github/copilot-instructions.md',
+    'ADR-template.md',
+    'user-story-template.md',
+    'architecture-spec.md',  # template root
+    'requirements-spec.md',  # template root
+]
+
+def is_ignored(path: Path) -> bool:
+    rel = path.relative_to(ROOT).as_posix()
+    # quick contains match for any ignore fragment
+    return any(p in rel for p in IGNORE_PATTERNS)
+
 
 def extract_front_matter(text: str) -> Dict[str, Any]:
     m = FRONT_MATTER_RE.match(text)
@@ -104,6 +119,8 @@ def main() -> int:
         for path in base.rglob('*.md'):
             if path.name.startswith('README'):
                 continue
+            if is_ignored(path):
+                continue
             try:
                 all_items.extend(parse_file(path))
             except Exception as e:
@@ -150,10 +167,10 @@ def main() -> int:
         for k, count in duplicates.items():
             print(f"  - {k} (occurrences: {count+0})", file=sys.stderr)
     OUTPUT_FILE.write_text(
-        json.dumps({'items': dedup, 'duplicateIds': list(duplicates.keys())}, indent=2),
+        json.dumps({'items': dedup, 'duplicateIds': list(duplicates.keys()), 'ignoredPatterns': IGNORE_PATTERNS}, indent=2),
         encoding='utf-8'
     )
-    print(f"Wrote {OUTPUT_FILE} with {len(dedup)} unique items (duplicates: {len(duplicates)})")
+    print(f"Wrote {OUTPUT_FILE} with {len(dedup)} unique items (duplicates: {len(duplicates)}) (ignored patterns active)")
     return 0
 
 if __name__ == '__main__':
