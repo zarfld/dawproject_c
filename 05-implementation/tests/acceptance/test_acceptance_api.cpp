@@ -8,7 +8,9 @@ namespace dawproject {
     extern "C" int dawproject_c_version() { return 1; } // REQ-F-015 placeholder C-style symbol
 }
 
-TEST_CASE("Public API version consistency (REQ-F-015, REQ-NF-008)", "[acceptance][api]") {
+// TEST-ACCEPT-API-VERSION-001: Validates public API version exposure consistency
+// Trace: REQ-F-015, REQ-NF-008
+TEST_CASE("Public API version consistency (TEST-ACCEPT-API-VERSION-001, REQ-F-015, REQ-NF-008)", "[acceptance][api]") {
     dawproject::CppFacade facade;
     REQUIRE(facade.version() == 1);
     REQUIRE(dawproject::dawproject_c_version() == 1);

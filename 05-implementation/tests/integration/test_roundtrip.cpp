@@ -17,7 +17,9 @@ namespace dawproject {
         std::ofstream ofs(p); ofs << pr.name << "\n" << pr.tracks; }
 }
 
-TEST_CASE("Round-trip project load/save (REQ-F-001, REQ-F-019, REQ-F-020)", "[integration][roundtrip]") {
+// TEST-INTEG-ROUNDTRIP-001: Verifies project load/save round-trip
+// Trace: REQ-F-001, REQ-F-019, REQ-F-020
+TEST_CASE("Round-trip project load/save (TEST-INTEG-ROUNDTRIP-001, REQ-F-001, REQ-F-019, REQ-F-020)", "[integration][roundtrip]") {
     auto in = std::filesystem::path("sample_project.dawxml");
     auto proj = dawproject::load(in);
     proj.tracks = 3; // simulate modification

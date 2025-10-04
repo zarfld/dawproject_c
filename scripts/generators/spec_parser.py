@@ -37,6 +37,12 @@ SCAN_DIRS = [
     ROOT / '03-architecture',
 ]
 
+# Additional directories (code/tests) where TEST-* identifiers and inline requirement references
+# may appear. We parse these more leniently (no front matter expected) to enrich traceability.
+CODE_TEST_DIRS = [
+    ROOT / '05-implementation' / 'tests',
+]
+
 FRONT_MATTER_RE = re.compile(r'^---\n(.*?)\n---\n', re.DOTALL)
 
 
@@ -101,6 +107,32 @@ def main() -> int:
                 all_items.extend(parse_file(path))
             except Exception as e:
                 print(f"WARN: failed to parse {path}: {e}", file=sys.stderr)
+
+    # Parse test source files for TEST-* identifiers and requirement references.
+    test_id_pattern = re.compile(r'\b(TEST-[A-Z0-9\-]+)\b')
+    req_ref_pattern = re.compile(r'\b(REQ-[A-Z0-9\-]+)\b')
+    for tdir in CODE_TEST_DIRS:
+        if not tdir.exists():
+            continue
+        for ext in ('*.cpp','*.cc','*.c','*.hpp','*.h','*.py'):
+            for src in tdir.rglob(ext):
+                try:
+                    text = src.read_text(encoding='utf-8', errors='ignore')
+                except Exception as e:
+                    print(f"WARN: failed to read test file {src}: {e}", file=sys.stderr)
+                    continue
+                test_ids = sorted(set(test_id_pattern.findall(text)))
+                if not test_ids:
+                    continue
+                req_refs = sorted({r for r in req_ref_pattern.findall(text)})
+                for tid in test_ids:
+                    all_items.append({
+                        'id': tid,
+                        'title': src.stem,
+                        'path': str(src.relative_to(ROOT)),
+                        'references': req_refs,
+                        'hash': hashlib.sha1((tid+text).encode('utf-8')).hexdigest()[:8],
+                    })
     # De-duplicate by ID keeping first occurrence while tracking duplicates
     seen = {}
     dedup: List[Dict[str, Any]] = []
