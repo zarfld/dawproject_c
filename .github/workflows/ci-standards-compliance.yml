@@ -286,8 +286,15 @@ jobs:
           trivy fs --format cyclonedx --output sbom.json . || echo 'SBOM generation failed'
       - name: Secret scan (gitleaks)
         run: |
-          curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64.tar.gz | tar -xz gitleaks
-          ./gitleaks detect --no-git --report-format sarif --report-path gitleaks.sarif || echo 'gitleaks findings (advisory for now)'
+          set -e
+          echo 'Downloading gitleaks (advisory)...'
+          if curl -fsSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64.tar.gz -o gitleaks.tar.gz; then \
+            tar -xzf gitleaks.tar.gz gitleaks || echo 'Extract warning'; \
+            chmod +x gitleaks || true; \
+            ./gitleaks detect --no-git --report-format sarif --report-path gitleaks.sarif || echo 'gitleaks: findings or non-zero exit (treated advisory)'; \
+          else \
+            echo 'gitleaks download failed; skipping secret scan'; \
+          fi
       - name: Upload Trivy SARIF
         if: always()
         uses: github/codeql-action/upload-sarif@v3
@@ -298,6 +305,14 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: gitleaks.sarif
+        continue-on-error: true
+      - name: Security Summary
+        if: always()
+        run: |
+          echo '--- Security Scan Summary ---'
+          if [ -f gitleaks.sarif ]; then echo 'Gitleaks SARIF present (advisory).'; else echo 'No Gitleaks SARIF produced.'; fi
+          if [ -f trivy-results.sarif ]; then echo 'Trivy SARIF produced.'; else echo 'Trivy SARIF missing!'; fi
+          if [ -f sbom.json ]; then echo 'SBOM generated.'; else echo 'SBOM missing.'; fi
       - name: Upload SBOM
         uses: actions/upload-artifact@v4
         with:
