@@ -118,6 +118,16 @@ jobs:
         run: |
           cd 05-implementation
           cmake --build build/coverage --config Debug -- -j$(nproc)
+      - name: Coverage Instrumentation Diagnostics
+        run: |
+          echo '--- Checking for coverage instrumentation flags in compile_commands.json (if generated) ---'
+          if [ -f 05-implementation/build/coverage/compile_commands.json ]; then
+            grep -m1 -- '--coverage' 05-implementation/build/coverage/compile_commands.json || echo 'No --coverage flag found in first commands (may still be applied globally)'
+          else
+            echo 'compile_commands.json not present; enabling for future runs recommended: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON'
+          fi
+          echo 'Listing a sample object file to verify presence:'
+          find 05-implementation/build/coverage -name '*.o' | head -n 5 || true
       - name: Run Unit Tests (Coverage)
         run: |
           cd 05-implementation/build/coverage
@@ -135,7 +145,7 @@ jobs:
           echo 'Running gcovr to generate coverage reports (filtered to project src)...'
           ROOT_DIR=$(realpath ../..)
           # Explicit include patterns to avoid counting external deps
-          if ! gcovr --root "$ROOT_DIR" \
+          if ! gcovr --verbose --root "$ROOT_DIR" \
               --filter "$ROOT_DIR/src" \
               --filter "$ROOT_DIR/include" \
               --exclude '.*/_deps/.*' \

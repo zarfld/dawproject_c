@@ -159,6 +159,11 @@ if(ENABLE_TESTING)
     )
     target_link_libraries(acceptance_api PRIVATE dawproject_data Catch2::Catch2WithMain)
     catch_discover_tests(acceptance_api TEST_PREFIX acceptance::)
+
+    # Smoke test to guarantee baseline line coverage for core components
+    add_executable(smoke_coverage tests/unit/test_smoke_coverage.cpp)
+    target_link_libraries(smoke_coverage PRIVATE dawproject_data Catch2::Catch2WithMain)
+    catch_discover_tests(smoke_coverage TEST_PREFIX smoke::)
 endif()
 
 # Performance testing executable (for refactoring verification)
