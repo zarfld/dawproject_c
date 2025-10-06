@@ -125,16 +125,33 @@ jobs:
       - name: Generate Coverage Report (gcovr)
         run: |
           cd 05-implementation/build/coverage
-          echo 'Running gcovr to generate coverage reports...'
-          if ! gcovr -r ../.. --xml-pretty -o coverage.xml --html --html-details -o coverage.html; then
-            echo 'gcovr failed to generate coverage. Listing object files for diagnostics:'
-            find . -name '*.o' -maxdepth 5 | head -n 50 || true
-            echo 'Attempting minimal fallback XML so enforce script reports gracefully.'
-            echo '<coverage line-rate="0.0" branch-rate="0.0"></coverage>' > coverage.xml
+          echo 'Locating coverage instrumentation artifacts (.gcno / .gcda)...'
+          GCNO_COUNT=$(find . -name '*.gcno' | wc -l || echo 0)
+            GCDA_COUNT=$(find . -name '*.gcda' | wc -l || echo 0)
+          echo ".gcno files: $GCNO_COUNT | .gcda files: $GCDA_COUNT"
+          if [ "$GCNO_COUNT" -eq 0 ]; then
+            echo 'Warning: No .gcno files found. Was compilation optimized away or coverage flags missing?'
           fi
-          if [ ! -f coverage.xml ]; then
-            echo 'coverage.xml still missing after gcovr attempt'; ls -al
-            exit 1
+          echo 'Running gcovr to generate coverage reports (filtered to project src)...'
+          ROOT_DIR=$(realpath ../..)
+          # Explicit include patterns to avoid counting external deps
+          if ! gcovr --root "$ROOT_DIR" \
+              --filter "$ROOT_DIR/src" \
+              --filter "$ROOT_DIR/include" \
+              --exclude '.*/_deps/.*' \
+              --xml-pretty -o coverage.xml \
+              --html --html-details -o coverage.html \
+              --print-summary; then
+            echo 'gcovr failed (non-zero exit). Capturing diagnostics:'
+            find . -name '*.o' | head -n 40 || true
+            if [ ! -f coverage.xml ]; then
+              echo 'Creating fallback zero coverage XML.'
+              echo '<coverage line-rate="0.0" branch-rate="0.0"></coverage>' > coverage.xml
+            fi
+          fi
+          if [ ! -s coverage.xml ]; then
+            echo 'coverage.xml exists but is empty; writing zero coverage XML.'
+            echo '<coverage line-rate="0.0" branch-rate="0.0"></coverage>' > coverage.xml
           fi
       - name: Enforce Coverage Threshold
         run: |
