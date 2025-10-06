@@ -5,9 +5,9 @@ on:
     branches: [main, develop, "feature/**", "release/**"]
   pull_request:
     branches: [main, develop]
-  schedule:
+  #schedule:
     # Run daily at 2 AM UTC
-    - cron: "0 2 * * *"
+    #- cron: "0 2 * * *"
 
 env:
   NODE_VERSION: "20.x"
