@@ -118,6 +118,22 @@ target_link_libraries(dawproject_data
     PRIVATE pugixml
 )
 
+# Install rules (needed for packaging and staging deploy)
+install(TARGETS dawproject_platform dawproject_data
+    EXPORT dawprojectTargets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY include/ DESTINATION include)
+install(EXPORT dawprojectTargets FILE dawprojectTargets.cmake NAMESPACE dawproject:: DESTINATION lib/cmake/dawproject)
+
+set(CPACK_PACKAGE_NAME "dawproject_c")
+set(CPACK_PACKAGE_VENDOR "dawproject")
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_GENERATOR "TGZ")
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PROJECT_VERSION}")
+
 # Enable testing
 if(ENABLE_TESTING)
     enable_testing()

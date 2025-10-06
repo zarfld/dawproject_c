@@ -113,7 +113,15 @@ jobs:
       - name: Configure (CMake, Coverage)
         run: |
           cd 05-implementation
-          cmake -B build/coverage -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }} -DBUILD_TESTING=ON -DENABLE_COVERAGE=ON
+          cmake -B build/coverage -S . \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }} \
+            -DBUILD_TESTING=ON \
+            -DENABLE_COVERAGE=ON \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DCMAKE_CXX_FLAGS="-O0 -g --coverage" \
+            -DCMAKE_EXE_LINKER_FLAGS="--coverage" \
+            -DCMAKE_SHARED_LINKER_FLAGS="--coverage"
       - name: Build (Coverage)
         run: |
           cd 05-implementation
@@ -132,6 +140,13 @@ jobs:
         run: |
           cd 05-implementation/build/coverage
           ctest --output-on-failure || { echo '❌ Coverage unit tests failed'; exit 1; }
+          echo 'Post-test gcov artifact summary:'
+          GCNO=$(find . -name '*.gcno' | wc -l || echo 0)
+          GCDA=$(find . -name '*.gcda' | wc -l || echo 0)
+          echo ".gcno: $GCNO  .gcda: $GCDA"
+          if [ "$GCNO" -gt 0 ] && [ "$GCDA" -eq 0 ]; then
+            echo '❌ Instrumentation files present but no execution data (.gcda). Tests may not have executed code paths or coverage flags not linked.'
+          fi
       - name: Generate Coverage Report (gcovr)
         run: |
           cd 05-implementation/build/coverage
