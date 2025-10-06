@@ -125,7 +125,17 @@ jobs:
       - name: Generate Coverage Report (gcovr)
         run: |
           cd 05-implementation/build/coverage
-          gcovr -r ../.. --xml-pretty -o coverage.xml --html --html-details -o coverage.html || echo 'Coverage report generation failed (scaffold)'
+          echo 'Running gcovr to generate coverage reports...'
+          if ! gcovr -r ../.. --xml-pretty -o coverage.xml --html --html-details -o coverage.html; then
+            echo 'gcovr failed to generate coverage. Listing object files for diagnostics:'
+            find . -name '*.o' -maxdepth 5 | head -n 50 || true
+            echo 'Attempting minimal fallback XML so enforce script reports gracefully.'
+            echo '<coverage line-rate="0.0" branch-rate="0.0"></coverage>' > coverage.xml
+          fi
+          if [ ! -f coverage.xml ]; then
+            echo 'coverage.xml still missing after gcovr attempt'; ls -al
+            exit 1
+          fi
       - name: Enforce Coverage Threshold
         run: |
           cd 05-implementation/build/coverage
