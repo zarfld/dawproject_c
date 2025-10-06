@@ -26,5 +26,5 @@ TEST_CASE("Smoke: create core components", "[smoke][coverage]") {
     auto engine = DataAccessFactory::createDataAccessEngine();
     REQUIRE(engine != nullptr);
     auto reader = engine->createReader("nonexistent.dawproject");
-    REQUIRE(reader != nullptr);
+    REQUIRE(reader != nullptr); // Reader construction succeeds; open() failure acceptable for nonexistent file.
 }
