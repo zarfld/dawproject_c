@@ -1,3 +1,17 @@
+---
+specType: architecture
+standard: "ISO/IEC/IEEE 42010:2011"
+phase: "03-architecture"
+version: "1.0.0"
+author: "Standards-Compliant Development Team"
+date: "2025-10-10"
+status: "approved"
+traceability:
+    requirements:
+        - "REQ-F-001"
+        - "REQ-F-002"
+---
+
 # ADR-005: Fixing Broken Requirements Traceability (US-004 Requirements Disaster)
 
 **Status**: Accepted  

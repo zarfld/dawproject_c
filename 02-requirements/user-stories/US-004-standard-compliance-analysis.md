@@ -5,10 +5,10 @@ phase: "02-requirements"
 version: "2.0.0"
 author: "Standards-Compliant Development Team"
 date: "2025-10-10"
-status: "revised"
+status: "approved"
 traceability:
   stakeholderRequirements:
-    - "STR-BUS-001"
+    - "StR-001"
 userStory: US-004
 ---
 
@@ -29,10 +29,10 @@ userStory: US-004
 
 ## Acceptance Criteria
 
-Traceability References: STR-BUS-001 (Cross-DAW Project Exchange Enablement)
+Traceability References: REQ-F-001, REQ-F-002, REQ-F-003
 
-- [ ] **Standard Validation**: Analyze files for DAWProject v1.0 specification compliance
-- [ ] **Feature Analysis**: Report which DAWProject features are used in the file
+- [ ] **Standard Validation**: Analyze files for DAWProject v1.0 specification compliance (REQ-F-001)
+- [ ] **Feature Analysis**: Report which DAWProject features are used in the file (REQ-F-002)
 - [ ] **Validation Warnings**: Identify potential format issues or non-standard usage
 - [ ] **Implementation Guidance**: Provide guidance for proper DAWProject handling
 
