@@ -112,17 +112,19 @@ public:
         std::lock_guard<std::mutex> lock(mutex_);
         
         // Find original size and determine if it was aligned or regular allocation
+        // Store all tracking info BEFORE any operations that might invalidate pointers
         size_t oldSize = 0;
         bool wasAligned = false;
+        auto regularIt = allocations_.find(ptr);
+        auto alignedIt = alignedAllocations_.end();
         
-        auto it = allocations_.find(ptr);
-        if (it != allocations_.end()) {
-            oldSize = it->second;
+        if (regularIt != allocations_.end()) {
+            oldSize = regularIt->second;
             wasAligned = false;
         } else {
-            auto ait = alignedAllocations_.find(ptr);
-            if (ait != alignedAllocations_.end()) {
-                oldSize = ait->second;
+            alignedIt = alignedAllocations_.find(ptr);
+            if (alignedIt != alignedAllocations_.end()) {
+                oldSize = alignedIt->second;
                 wasAligned = true;
             }
         }
@@ -135,9 +137,9 @@ public:
             // Standard reallocation for regular memory
             newPtr = std::realloc(ptr, newSize);
             if (newPtr != nullptr) {
-                // Update tracking - use stored originalPtr, not potentially invalidated ptr
+                // Update tracking - use pre-stored iterator to avoid ptr usage after realloc
                 totalAllocated_ -= oldSize;
-                allocations_.erase(allocations_.find(originalPtr));
+                allocations_.erase(regularIt);
                 
                 allocations_[newPtr] = newSize;
                 totalAllocated_ += newSize;
@@ -154,10 +156,10 @@ public:
                 std::memcpy(newPtr, originalPtr, std::min(oldSize, newSize));
                 
                 // Manually handle old pointer cleanup to avoid deallocate recursion
-                // Use originalPtr since ptr might have been used in other operations
+                // Use pre-stored iterators to avoid any pointer lookups after operations
                 if (wasAligned) {
                     totalAllocated_ -= oldSize;
-                    alignedAllocations_.erase(alignedAllocations_.find(originalPtr));
+                    alignedAllocations_.erase(alignedIt);
 #ifdef _WIN32
                     _aligned_free(originalPtr);
 #else
@@ -165,7 +167,7 @@ public:
 #endif
                 } else {
                     totalAllocated_ -= oldSize;
-                    allocations_.erase(allocations_.find(originalPtr));
+                    allocations_.erase(regularIt);
                     std::free(originalPtr);
                 }
             }
