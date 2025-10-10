@@ -153,21 +153,34 @@ jobs:
           cd 05-implementation/build/coverage
           echo 'Locating coverage instrumentation artifacts (.gcno / .gcda)...'
           GCNO_COUNT=$(find . -name '*.gcno' | wc -l || echo 0)
-            GCDA_COUNT=$(find . -name '*.gcda' | wc -l || echo 0)
+          GCDA_COUNT=$(find . -name '*.gcda' | wc -l || echo 0)
           echo ".gcno files: $GCNO_COUNT | .gcda files: $GCDA_COUNT"
           if [ "$GCNO_COUNT" -eq 0 ]; then
             echo 'Warning: No .gcno files found. Was compilation optimized away or coverage flags missing?'
           fi
           echo 'Running gcovr to generate coverage reports (filtered to project src)...'
           ROOT_DIR=$(realpath ../..)
-          # Explicit include patterns to avoid counting external deps
-          if ! gcovr --verbose --root "$ROOT_DIR" \
-              --filter "$ROOT_DIR/src" \
-              --filter "$ROOT_DIR/include" \
-              --exclude '.*/_deps/.*' \
-              --xml-pretty -o coverage.xml \
-              --html --html-details -o coverage.html \
-              --print-summary; then
+          echo "Root directory: $ROOT_DIR"
+          echo "Current directory: $(pwd)"
+          # List actual .gcda files to see what we're processing
+          echo "Sample .gcda files:"
+          find . -name '*.gcda' | head -5
+          # Generate coverage with corrected filters
+          if ! gcovr --verbose \
+              --root="$ROOT_DIR" \
+              --filter="$ROOT_DIR/src/" \
+              --filter="$ROOT_DIR/include/" \
+              --exclude='.*/_deps/.*' \
+              --exclude='.*external.*' \
+              --exclude='.*/tests/.*' \
+              --gcov-ignore-parse-errors \
+              --xml-pretty \
+              --output=coverage.xml \
+              --html-details \
+              --html-title="DAW Project Coverage" \
+              --output=coverage.html \
+              --print-summary \
+              .; then
             echo 'gcovr failed (non-zero exit). Capturing diagnostics:'
             find . -name '*.o' | head -n 40 || true
             if [ ! -f coverage.xml ]; then
