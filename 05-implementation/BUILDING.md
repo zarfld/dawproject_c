@@ -55,7 +55,7 @@ ctest --output-on-failure
 | Dev     | build/dev  | `-DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON`              | Everyday coding |
 | TDD     | build/tdd  | `-DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON`              | Focused red/green cycles |
 | Release | build/release | `-DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON`         | Packaging, perf checks |
-| Coverage| build/coverage | (future) `--coverage` or `-fprofile-arcs -ftest-coverage` | Coverage metrics |
+| Coverage| build/coverage | `-DENABLE_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug` | Coverage metrics |
 
 ## Cleaning
 
@@ -81,9 +81,46 @@ cmake --build build/dev --config Debug -- /m
 ctest --test-dir build/dev --output-on-failure
 ```
 
+## Coverage Generation
+
+The project supports cross-platform coverage generation:
+
+### Windows (MSVC + OpenCppCoverage)
+
+```powershell
+# Install OpenCppCoverage first:
+# choco install opencppcoverage
+
+# Configure with coverage enabled
+cmake -B build/coverage -S . -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON -DENABLE_TESTING=ON
+cmake --build build/coverage --config Debug
+
+# Generate coverage report
+python scripts/generate_coverage.py --build-dir build/coverage --html
+```
+
+### Linux/macOS (GCC/Clang + gcovr)
+
+```bash
+# Install gcovr first:
+# sudo apt-get install gcovr  (Ubuntu/Debian)
+# brew install gcovr          (macOS)
+
+# Configure with coverage enabled  
+cmake -B build/coverage -S . -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON -DENABLE_TESTING=ON
+cmake --build build/coverage
+
+# Run tests to generate .gcda files
+ctest --test-dir build/coverage
+
+# Generate coverage report
+python scripts/generate_coverage.py --build-dir build/coverage --html
+```
+
+The coverage scripts automatically detect the platform and use appropriate tools.
+
 ## Future Extensions
 
-- Add `ENABLE_COVERAGE=ON` CMake option and produce gcovr XML into `build/coverage`.
 - Introduce toolchain-specific subfolders if cross-compiling (e.g., `build/arm64/ci`).
 
 ## Governance
