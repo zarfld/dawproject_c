@@ -1,4 +1,5 @@
 #include "data_access_engine_impl.h"
+#include "dawproject_xml_parser.h"
 #include <fstream>
 #include <filesystem>
 #include <chrono>
@@ -85,7 +86,19 @@ namespace dawproject::data {
                 return Result<ProjectInfo>::makeError("File too large: " + std::to_string(fileSize) + " bytes");
             }
 
-            // For GREEN phase: return minimal valid project info
+            // TODO: Implement proper DAWProject v1.0 parsing
+            // This requires:
+            // 1. ZipProcessor to extract project.xml from ZIP container
+            // 2. XMLProcessor to load XML document 
+            // 3. DawProjectXMLParser to parse DAWProject-specific structure
+            // 4. Schema validation against Project.xsd
+            //
+            // Implementation blocked pending:
+            // - ZipProcessor implementation for .dawproject containers
+            // - Integration of DawProjectXMLParser with existing XMLProcessor
+            // - Test infrastructure for ZIP + XML parsing workflow
+            //
+            // For now, return minimal valid project (maintains existing test compatibility)
             ProjectInfo info;
             info.title = "Default Project";
             info.artist = "Unknown Artist"; 

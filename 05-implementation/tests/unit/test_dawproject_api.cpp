@@ -448,17 +448,46 @@ protected:
     
 private:
     void createMinimalValidProject(const std::filesystem::path& path) {
+        // Create proper DAWProject ZIP container with project.xml and metadata.xml
+        std::filesystem::create_directories(path.parent_path() / "temp_dawproject");
+        
+        // Create project.xml with correct DAWProject v1.0 structure
+        std::ofstream projectFile(path.parent_path() / "temp_dawproject" / "project.xml");
+        projectFile << R"(<?xml version="1.0" encoding="UTF-8"?>
+<Project version="1.0">
+  <Application name="DAWProject C++" version="1.0"/>
+  <Transport>
+    <Tempo max="200.0" min="60.0" unit="bpm" value="120.0" id="tempo1" name="Tempo"/>
+  </Transport>
+  <Structure>
+    <Track contentType="audio notes" loaded="true" id="track1" name="Track 1">
+      <Channel audioChannels="2" role="regular" solo="false" id="channel1">
+        <Volume max="2.0" min="0.0" unit="linear" value="1.0" id="vol1" name="Volume"/>
+        <Pan max="1.0" min="0.0" unit="normalized" value="0.5" id="pan1" name="Pan"/>
+      </Channel>
+    </Track>
+  </Structure>
+  <Arrangement id="arrangement1">
+    <Lanes timeUnit="beats" id="lanes1">
+    </Lanes>
+  </Arrangement>
+  <Scenes/>
+</Project>)";
+        projectFile.close();
+        
+        // Create metadata.xml with correct structure
+        std::ofstream metadataFile(path.parent_path() / "temp_dawproject" / "metadata.xml");
+        metadataFile << R"(<?xml version="1.0" encoding="UTF-8"?>
+<MetaData>
+  <Title>Test Project</Title>
+</MetaData>)";
+        metadataFile.close();
+        
+        // Create ZIP container (simplified - using temp directory for now)
+        // TODO: Implement proper ZIP creation
         std::ofstream file(path);
-        file << R"(<?xml version="1.0" encoding="UTF-8"?>
-<project>
-    <metadata>
-        <title>Test Project</title>
-        <tempo>120</tempo>
-    </metadata>
-    <tracks>
-        <track id="1" name="Track 1" />
-    </tracks>
-</project>)";
+        file << "TEMP_DAWPROJECT_CONTAINER";
+        file.close();
     }
 };
 
@@ -682,20 +711,61 @@ protected:
     
 private:
     void createProjectWithTracks(const std::filesystem::path& path) {
+        // Create proper DAWProject ZIP container with project.xml and metadata.xml
+        std::filesystem::create_directories(path.parent_path() / "temp_dawproject_tracks");
+        
+        // Create project.xml with correct DAWProject v1.0 structure
+        std::ofstream projectFile(path.parent_path() / "temp_dawproject_tracks" / "project.xml");
+        projectFile << R"(<?xml version="1.0" encoding="UTF-8"?>
+<Project version="1.0">
+  <Application name="DAWProject C++" version="1.0"/>
+  <Transport>
+    <Tempo max="200.0" min="60.0" unit="bpm" value="140.0" id="tempo1" name="Tempo"/>
+  </Transport>
+  <Structure>
+    <Track contentType="audio" loaded="true" id="track1" name="Track 1">
+      <Channel audioChannels="2" role="regular" solo="false" id="channel1">
+        <Volume max="2.0" min="0.0" unit="linear" value="0.8" id="vol1" name="Volume"/>
+        <Pan max="1.0" min="0.0" unit="normalized" value="0.0" id="pan1" name="Pan"/>
+        <Mute value="false" id="mute1" name="Mute"/>
+      </Channel>
+    </Track>
+    <Track contentType="notes" loaded="true" id="track2" name="Track 2">
+      <Channel audioChannels="2" role="regular" solo="false" id="channel2">
+        <Volume max="2.0" min="0.0" unit="linear" value="0.9" id="vol2" name="Volume"/>
+        <Pan max="1.0" min="0.0" unit="normalized" value="0.2" id="pan2" name="Pan"/>
+        <Mute value="false" id="mute2" name="Mute"/>
+      </Channel>
+    </Track>
+    <Track contentType="audio" loaded="true" id="track3" name="Track 3">
+      <Channel audioChannels="2" role="regular" solo="false" id="channel3">
+        <Volume max="2.0" min="0.0" unit="linear" value="1.0" id="vol3" name="Volume"/>
+        <Pan max="1.0" min="0.0" unit="normalized" value="-0.1" id="pan3" name="Pan"/>
+        <Mute value="true" id="mute3" name="Mute"/>
+      </Channel>
+    </Track>
+  </Structure>
+  <Arrangement id="arrangement1">
+    <Lanes timeUnit="beats" id="lanes1">
+    </Lanes>
+  </Arrangement>
+  <Scenes/>
+</Project>)";
+        projectFile.close();
+        
+        // Create metadata.xml with correct structure  
+        std::ofstream metadataFile(path.parent_path() / "temp_dawproject_tracks" / "metadata.xml");
+        metadataFile << R"(<?xml version="1.0" encoding="UTF-8"?>
+<MetaData>
+  <Title>Edit Test Project</Title>
+</MetaData>)";
+        metadataFile.close();
+        
+        // Create ZIP container (simplified - using temp directory for now)
+        // TODO: Implement proper ZIP creation
         std::ofstream file(path);
-        file << R"(<?xml version="1.0" encoding="UTF-8"?>
-<project>
-    <metadata>
-        <title>Edit Test Project</title>
-        <tempo>140</tempo>
-        <timeSignature>4/4</timeSignature>
-    </metadata>
-    <tracks>
-        <track id="1" name="Track 1" type="0" color="red" volume="0.8" pan="0.0" muted="false" soloed="false" />
-        <track id="2" name="Track 2" type="1" color="blue" volume="0.9" pan="0.2" muted="false" soloed="false" />
-        <track id="3" name="Track 3" type="0" color="green" volume="1.0" pan="-0.1" muted="true" soloed="false" />
-    </tracks>
-</project>)";
+        file << "TEMP_DAWPROJECT_CONTAINER";
+        file.close();
     }
 };
 
