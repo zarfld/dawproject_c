@@ -127,12 +127,12 @@ public:
             }
         }
         
+        // Store original pointer before any operations that might invalidate it
+        void* originalPtr = ptr;
         void* newPtr = nullptr;
         
         if (alignment <= sizeof(void*) && !wasAligned) {
             // Standard reallocation for regular memory
-            // Store original pointer before realloc since realloc may invalidate it
-            void* originalPtr = ptr;
             newPtr = std::realloc(ptr, newSize);
             if (newPtr != nullptr) {
                 // Update tracking - use stored originalPtr, not potentially invalidated ptr
@@ -151,21 +151,22 @@ public:
             mutex_.lock();
             
             if (newPtr != nullptr && oldSize > 0) {
-                std::memcpy(newPtr, ptr, std::min(oldSize, newSize));
+                std::memcpy(newPtr, originalPtr, std::min(oldSize, newSize));
                 
                 // Manually handle old pointer cleanup to avoid deallocate recursion
+                // Use originalPtr since ptr might have been used in other operations
                 if (wasAligned) {
                     totalAllocated_ -= oldSize;
-                    alignedAllocations_.erase(alignedAllocations_.find(ptr));
+                    alignedAllocations_.erase(alignedAllocations_.find(originalPtr));
 #ifdef _WIN32
-                    _aligned_free(ptr);
+                    _aligned_free(originalPtr);
 #else
-                    std::free(ptr);
+                    std::free(originalPtr);
 #endif
                 } else {
                     totalAllocated_ -= oldSize;
-                    allocations_.erase(allocations_.find(ptr));
-                    std::free(ptr);
+                    allocations_.erase(allocations_.find(originalPtr));
+                    std::free(originalPtr);
                 }
             }
         }
