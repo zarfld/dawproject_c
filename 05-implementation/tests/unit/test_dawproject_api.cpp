@@ -721,7 +721,7 @@ TEST_CASE_METHOD(EditProjectAPITests, "US-003: Track Editing - Add, remove, rena
         project->addTrack("Track 2", data::TrackType::Audio);
         
         const auto& tracks = project->getTracks();
-        REQUIRE(tracks.size() >= 2);
+        REQUIRE(tracks.size() >= 2U);
         
         std::string originalName = tracks[0].getName();
         std::string newName = "Renamed Track";
@@ -895,7 +895,7 @@ TEST_CASE_METHOD(EditProjectAPITests, "US-003: Thread Safety - Edits are safe in
             
             // Verify operations completed successfully
             const auto& tracks = project->getTracks();
-            REQUIRE(tracks.size() > 2);
+            REQUIRE(tracks.size() > 2U);
             REQUIRE(tracks[0].getName() == "Thread Test 1");
             REQUIRE(tracks[1].getName() == "Thread Test 2");
         }());
@@ -912,7 +912,7 @@ TEST_CASE_METHOD(EditProjectAPITests, "US-003: Gherkin Scenarios - BDD test scen
         project->addTrack("Original Track", data::TrackType::Audio);
         
         const auto& tracks = project->getTracks();
-        REQUIRE(tracks.size() >= 1);
+        REQUIRE(tracks.size() >= 1U);
         
         std::string originalName = tracks[0].getName();
         
@@ -1089,7 +1089,7 @@ TEST_CASE_METHOD(DawProjectAPITests, "US-004: Feature Usage Analysis - Comprehen
         auto features = project->getFeatureUsage();
         
         // Should detect multiple DAWProject v1.0 features
-        REQUIRE(features.size() >= 3);
+        REQUIRE(features.size() >= 3U);
         
         // Should find core features
         bool foundProjectStructure = false, foundAudioTracks = false, foundMidiTracks = false;
@@ -1351,7 +1351,7 @@ TEST_CASE_METHOD(EditProjectAPITests, "US-004: Extreme Edge Cases - Compliance a
             REQUIRE(analysis.isCompliant);
             
             // Statistics should count all tracks
-            REQUIRE(std::stoi(analysis.statistics.at("Track Count")) == specialNames.size());
+            REQUIRE(std::stoi(analysis.statistics.at("Track Count")) == static_cast<int>(specialNames.size()));
         }());
         
         // Verify all tracks are accessible with special names
@@ -1392,7 +1392,7 @@ TEST_CASE_METHOD(EditProjectAPITests, "US-004: Extreme Edge Cases - Compliance a
             );
             REQUIRE(!issue.issueName.empty());
             REQUIRE(!issue.description.empty());
-            REQUIRE(issue.affectedElements.size() == 3);
+            REQUIRE(issue.affectedElements.size() == 3U);
         }
         
         SECTION("All severity levels") {
@@ -1409,7 +1409,7 @@ TEST_CASE_METHOD(EditProjectAPITests, "US-004: Extreme Edge Cases - Compliance a
                 manyCategories.push_back("Category " + std::to_string(i));
             }
             ValidationIssue issue("Test", "Test", "info", manyCategories, "Test");
-            REQUIRE(issue.affectedElements.size() == 100);
+            REQUIRE(issue.affectedElements.size() == 100U);
         }
     }
 }
