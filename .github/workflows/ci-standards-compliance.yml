@@ -167,7 +167,18 @@ jobs:
           find build/coverage -name '*.gcda' | head -5
           # Generate coverage from project root with relative paths
           echo "Generating coverage XML with gcovr from project root..."
-          if gcovr --verbose \
+          echo "=== Pre-flight checks ==="
+          echo "gcovr version: $(gcovr --version)"
+          echo "Current working directory: $(pwd)"
+          echo "Source files exist:"
+          ls -la src/ | head -5 || echo "No src/ directory found"
+          echo "Build coverage files exist:"
+          ls -la build/coverage/CMakeFiles/dawproject_data.dir/src/data/*.gc* | head -3 || echo "No dawproject gcov files found"
+          
+          echo "=== Running gcovr with verbose output ==="
+          set -x  # Enable command tracing
+          if gcovr \
+              --verbose \
               --root . \
               --filter src/ \
               --filter include/ \
@@ -178,7 +189,8 @@ jobs:
               --xml-pretty \
               --output build/coverage/coverage.xml \
               --print-summary \
-              build/coverage/; then
+              build/coverage/ 2>&1; then
+            set +x  # Disable command tracing
             echo "✅ gcovr XML succeeded. Generating HTML separately..."
             # Generate HTML in separate command to avoid --output conflict
             gcovr \
@@ -193,16 +205,32 @@ jobs:
               --output build/coverage/coverage.html \
               build/coverage/ || echo "HTML generation failed but XML succeeded"
           else
-            echo '❌ gcovr XML failed. Checking gcov data...'
-            # Run gcov directly to see if the problem is with gcovr or gcov
+            set +x  # Disable command tracing in case it was still on
+            GCOVR_EXIT_CODE=$?
+            echo "❌ gcovr XML failed with exit code: $GCOVR_EXIT_CODE"
+            
+            echo "=== Diagnosing gcovr failure ==="
+            echo "Checking if gcovr can find any files at all..."
+            # Try minimal gcovr command to see basic functionality
+            echo "Testing gcovr basic functionality:"
+            gcovr --root . build/coverage/ 2>&1 | head -10 || echo "Basic gcovr also failed"
+            
+            echo "=== Testing gcov directly on our files ==="
             cd build/coverage
             find . -name "*.gcda" -path "*dawproject*" | head -3 | while read gcda_file; do
               echo "Testing gcov on: $gcda_file"
-              gcov "$gcda_file" 2>/dev/null | grep "Lines executed" || echo "gcov failed on $gcda_file"
+              gcov "$gcda_file" 2>&1 | head -5
             done
+            
+            echo "=== Checking file structure ==="
+            echo "Source directory structure:"
             cd ../..
-            echo 'gcovr failed (non-zero exit). Capturing diagnostics:'
-            find build/coverage -name '*.o' | head -n 40 || true
+            find src -name "*.cpp" | head -5 || echo "No cpp files in src"
+            echo "Generated .gcov files in build:"
+            find build/coverage -name "*.gcov" | head -5 || echo "No .gcov files found"
+            
+            echo 'Attempting manual gcovr with simpler parameters:'
+            gcovr --root . --filter src/ --print-summary build/coverage/ 2>&1 || echo "Simple gcovr also failed"
             if [ ! -f build/coverage/coverage.xml ]; then
               echo 'Creating fallback zero coverage XML.'
               echo '<coverage line-rate="0.0" branch-rate="0.0"></coverage>' > build/coverage/coverage.xml
