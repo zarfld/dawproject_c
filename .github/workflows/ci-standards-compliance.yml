@@ -266,17 +266,17 @@ jobs:
           echo "=== Coverage Threshold Enforcement ==="
           echo "Current directory: $(pwd)"
           echo "Looking for coverage.xml file..."
-          ls -la build/coverage/coverage.xml || echo "coverage.xml not found"
+          ls -la 05-implementation/build/coverage/coverage.xml || echo "coverage.xml not found in 05-implementation/build/coverage/"
           
-          # Run coverage enforcement from correct directory
-          python scripts/enforce_coverage.py --file build/coverage/coverage.xml --min ${{ env.MIN_TEST_COVERAGE }}
+          # Run coverage enforcement from correct directory with correct path
+          python scripts/enforce_coverage.py --file 05-implementation/build/coverage/coverage.xml --min ${{ env.MIN_TEST_COVERAGE }}
       - name: Upload Coverage Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: |
-            build/coverage/coverage.xml
-            build/coverage/coverage.html
+            05-implementation/build/coverage/coverage.xml
+            05-implementation/build/coverage/coverage.html
           if-no-files-found: ignore
       - name: Coverage Enforcement (placeholder)
         run: |
