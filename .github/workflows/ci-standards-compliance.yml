@@ -177,18 +177,24 @@ jobs:
           
           echo "=== Running gcovr with verbose output ==="
           set -x  # Enable command tracing
-          # Only process .gcda files for our project source, not external libraries
-          echo "=== Removing external library coverage data to prevent 0% dilution ==="
-          find build/coverage -name "*.gcda" -path "*catch2*" -delete || true
-          find build/coverage -name "*.gcda" -path "*_deps*" -delete || true
-          echo "Remaining .gcda files after cleanup:"
-          find build/coverage -name "*.gcda" | head -5
+          # Let's investigate the actual source structure to fix path resolution
+          echo "=== Investigating source file structure ==="
+          echo "Catch2 source location:"
+          find build/coverage/_deps -name "catch_errno_guard.cpp" -o -name "catch2" -type d | head -5 || true
+          echo "Sample .gcda files and their source expectations:"
+          find build/coverage -name "*.gcda" -path "*catch*" | head -3 | while read gcda_file; do
+            echo "GCDA: $gcda_file"
+            gcov "$gcda_file" 2>&1 | grep "Cannot open source file" | head -2 || true
+          done
           
           if gcovr \
               --verbose \
               --root . \
               --filter "^src/" \
               --filter "^include/" \
+              --search-path build/coverage/_deps/catch2-src \
+              --search-path build/coverage/_deps/catch2-src/src \
+              --search-path . \
               --gcov-ignore-parse-errors \
               --gcov-ignore-errors no_working_dir_found \
               --xml-pretty \
@@ -202,6 +208,9 @@ jobs:
               --root . \
               --filter "^src/" \
               --filter "^include/" \
+              --search-path build/coverage/_deps/catch2-src \
+              --search-path build/coverage/_deps/catch2-src/src \
+              --search-path . \
               --gcov-ignore-parse-errors \
               --gcov-ignore-errors no_working_dir_found \
               --html-details \
