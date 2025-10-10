@@ -189,30 +189,70 @@ jobs:
             ls -la src/catch2 | head -3 || echo "Symlink creation failed"
           fi
           
+          # First: Generate full coverage including external libraries
+          echo "=== Full coverage (including external libraries) ==="
+          gcovr \
+              --verbose \
+              --root . \
+              --gcov-ignore-parse-errors \
+              --gcov-ignore-errors no_working_dir_found \
+              --xml-pretty \
+              --output build/coverage/coverage-full.xml \
+              --print-summary \
+              build/coverage/ 2>&1
+              
+          # Second: Generate project-only coverage
+          echo "=== Project-only coverage (excluding external libraries) ==="
           if gcovr \
               --verbose \
               --root . \
               --filter "^src/" \
               --filter "^include/" \
+              --exclude "^src/catch2" \
+              --exclude "/usr/include" \
+              --exclude "bits/" \
+              --exclude "c++/" \
               --gcov-ignore-parse-errors \
               --gcov-ignore-errors no_working_dir_found \
               --xml-pretty \
               --output build/coverage/coverage.xml \
               --print-summary \
+              --html-details \
+              --html-title "Project Coverage (Excluding External Libraries)" \
+              --output build/coverage/coverage-project.html \
               build/coverage/ 2>&1; then
             set +x  # Disable command tracing
-            echo "✅ gcovr XML succeeded. Generating HTML separately..."
-            # Generate HTML in separate command to avoid --output conflict
+            echo "✅ gcovr project-only coverage succeeded!"
+            
+            echo "=== Detailed coverage analysis by file ==="
+            # Generate detailed per-file coverage report
             gcovr \
               --root . \
               --filter "^src/" \
               --filter "^include/" \
+              --exclude "^src/catch2" \
+              --exclude "/usr/include" \
+              --exclude "bits/" \
+              --exclude "c++/" \
               --gcov-ignore-parse-errors \
               --gcov-ignore-errors no_working_dir_found \
-              --html-details \
-              --html-title "DAW Project Coverage Report" \
-              --output build/coverage/coverage.html \
-              build/coverage/ || echo "HTML generation failed but XML succeeded"
+              --txt \
+              build/coverage/ 2>/dev/null | head -30 || echo "Detailed report generation failed"
+              
+            echo "=== Files with low coverage (< 50%) ==="
+            # Show specific files with low coverage
+            gcovr \
+              --root . \
+              --filter "^src/" \
+              --filter "^include/" \
+              --exclude "^src/catch2" \
+              --exclude "/usr/include" \
+              --exclude "bits/" \
+              --exclude "c++/" \
+              --gcov-ignore-parse-errors \
+              --gcov-ignore-errors no_working_dir_found \
+              --txt \
+              build/coverage/ 2>/dev/null | grep -E "^src/|^include/" | awk '$2 < 50.0 {print $0}' | head -10 || echo "Low coverage analysis failed"
           else
             set +x  # Disable command tracing in case it was still on
             GCOVR_EXIT_CODE=$?
@@ -264,7 +304,8 @@ jobs:
           name: coverage-report
           path: |
             05-implementation/build/coverage/coverage.xml
-            05-implementation/build/coverage/coverage.html
+            05-implementation/build/coverage/coverage-full.xml
+            05-implementation/build/coverage/coverage-project.html
           if-no-files-found: ignore
       - name: Coverage Enforcement (placeholder)
         run: |
