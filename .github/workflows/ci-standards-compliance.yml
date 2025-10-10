@@ -177,23 +177,18 @@ jobs:
           
           echo "=== Running gcovr with verbose output ==="
           set -x  # Enable command tracing
+          # Only process .gcda files for our project source, not external libraries
+          echo "=== Removing external library coverage data to prevent 0% dilution ==="
+          find build/coverage -name "*.gcda" -path "*catch2*" -delete || true
+          find build/coverage -name "*.gcda" -path "*_deps*" -delete || true
+          echo "Remaining .gcda files after cleanup:"
+          find build/coverage -name "*.gcda" | head -5
+          
           if gcovr \
               --verbose \
               --root . \
-              --filter "src/" \
-              --filter "include/" \
-              --exclude _deps \
-              --exclude external \
-              --exclude tests \
-              --exclude catch2 \
-              --exclude CMakeFiles \
-              --exclude ".*_deps.*" \
-              --exclude ".*catch2.*" \
-              --exclude ".*CMakeFiles.*" \
-              --exclude ".*\.tcc$" \
-              --exclude ".*bits/.*" \
-              --exclude ".*c\+\+/.*" \
-              --exclude ".*gcc/.*" \
+              --filter "^src/" \
+              --filter "^include/" \
               --gcov-ignore-parse-errors \
               --gcov-ignore-errors no_working_dir_found \
               --xml-pretty \
@@ -205,20 +200,8 @@ jobs:
             # Generate HTML in separate command to avoid --output conflict
             gcovr \
               --root . \
-              --filter "src/" \
-              --filter "include/" \
-              --exclude _deps \
-              --exclude external \
-              --exclude tests \
-              --exclude catch2 \
-              --exclude CMakeFiles \
-              --exclude ".*_deps.*" \
-              --exclude ".*catch2.*" \
-              --exclude ".*CMakeFiles.*" \
-              --exclude ".*\.tcc$" \
-              --exclude ".*bits/.*" \
-              --exclude ".*c\+\+/.*" \
-              --exclude ".*gcc/.*" \
+              --filter "^src/" \
+              --filter "^include/" \
               --gcov-ignore-parse-errors \
               --gcov-ignore-errors no_working_dir_found \
               --html-details \
