@@ -155,6 +155,30 @@ namespace dawproject {
         const std::vector<Track>& getTracks() const;
         
         /**
+         * @brief Save DAW Project to file
+         * 
+         * Implements US-002 acceptance criteria:
+         * - Simple API: Save project with single function call
+         * - Error Handling: Clear error messages for invalid or unwritable files
+         * - Data Integrity: All project elements are written and verifiable on reload
+         * - Performance: Save 32-track project within 30 seconds on standard hardware
+         * 
+         * @param filePath Path to save .dawproject file to
+         * @throws DawProjectException for file system errors or write permissions
+         */
+        void save(const std::string& filePath) const;
+        
+        /**
+         * @brief Save DAW Project to filesystem path
+         * 
+         * Overload accepting std::filesystem::path for convenience
+         * 
+         * @param filePath Path to save .dawproject file to  
+         * @throws DawProjectException for file system errors or write permissions
+         */
+        void save(const std::filesystem::path& filePath) const;
+        
+        /**
          * @brief Check if project was loaded successfully
          */
         bool isValid() const;
