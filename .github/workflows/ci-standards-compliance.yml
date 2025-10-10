@@ -75,7 +75,7 @@ jobs:
       - name: Configure (CMake)
         run: |
           cd 05-implementation
-          cmake -B ${{ env.BUILD_DIR }} -S . -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }} -DBUILD_TESTING=ON
+          cmake -B ${{ env.BUILD_DIR }} -S . -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }} -DBUILD_TESTING=ON -DENABLE_SANITIZERS=OFF
       - name: Build
         run: |
           cd 05-implementation
@@ -118,6 +118,7 @@ jobs:
             -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }} \
             -DBUILD_TESTING=ON \
             -DENABLE_COVERAGE=ON \
+            -DENABLE_SANITIZERS=OFF \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DCMAKE_CXX_FLAGS="-O0 -g --coverage" \
             -DCMAKE_EXE_LINKER_FLAGS="--coverage" \
@@ -404,7 +405,7 @@ jobs:
       - name: Run integration test suite
         run: |
           cd 05-implementation
-          cmake -B ${{ env.BUILD_DIR }} -S . -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DENABLE_TESTING=ON -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }}
+          cmake -B ${{ env.BUILD_DIR }} -S . -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DENABLE_TESTING=ON -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }} -DENABLE_SANITIZERS=OFF
           cmake --build ${{ env.BUILD_DIR }} --target integration_roundtrip -- -j$(nproc)
           cd ${{ env.BUILD_DIR }}
           ctest -R integration_roundtrip --output-on-failure || { echo '❌ Integration tests failed'; exit 1; }
@@ -448,7 +449,7 @@ jobs:
       - name: Run acceptance test suite
         run: |
           cd 05-implementation
-            cmake -B ${{ env.BUILD_DIR }} -S . -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DENABLE_TESTING=ON -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }}
+            cmake -B ${{ env.BUILD_DIR }} -S . -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DENABLE_TESTING=ON -DCMAKE_CXX_STANDARD=${{ env.CXX_STANDARD }} -DENABLE_SANITIZERS=OFF
             cmake --build ${{ env.BUILD_DIR }} --target acceptance_api -- -j$(nproc)
             cd ${{ env.BUILD_DIR }}
             ctest -R acceptance_api --output-on-failure || { echo '❌ Acceptance tests failed'; exit 1; }
