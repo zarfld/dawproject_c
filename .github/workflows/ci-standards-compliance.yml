@@ -150,72 +150,65 @@ jobs:
           fi
       - name: Generate Coverage Report (gcovr)
         run: |
-          cd 05-implementation
+          cd 05-implementation/build/coverage
           echo 'Locating coverage instrumentation artifacts (.gcno / .gcda)...'
-          GCNO_COUNT=$(find build/coverage -name '*.gcno' | wc -l || echo 0)
-          GCDA_COUNT=$(find build/coverage -name '*.gcda' | wc -l || echo 0)
+          GCNO_COUNT=$(find . -name '*.gcno' | wc -l || echo 0)
+          GCDA_COUNT=$(find . -name '*.gcda' | wc -l || echo 0)
           echo ".gcno files: $GCNO_COUNT | .gcda files: $GCDA_COUNT"
           if [ "$GCNO_COUNT" -eq 0 ]; then
             echo 'Warning: No .gcno files found. Was compilation optimized away or coverage flags missing?'
           fi
-          echo 'Running gcovr from project root to generate coverage reports...'
-          ROOT_DIR=$(pwd)
-          BUILD_DIR="$ROOT_DIR/build/coverage"
-          echo "Project root: $ROOT_DIR"
-          echo "Build directory: $BUILD_DIR"
-          # List sample .gcda files for debugging
+          echo 'Running gcovr to generate coverage reports (filtered to project src)...'
+          ROOT_DIR=$(realpath ../..)
+          echo "Root directory: $ROOT_DIR"
+          echo "Current directory: $(pwd)"
+          # List actual .gcda files to see what we're processing
           echo "Sample .gcda files:"
-          find build/coverage -name '*.gcda' | head -5
-          # List actual source files to verify filters
-          echo "Source files that should be covered:"
-          find src -name '*.cpp' | head -5
-          # Run gcovr from project root with build directory
-          echo "=== Attempting gcovr coverage generation ==="
-          if gcovr \
-              --verbose \
-              --root . \
-              --filter src/ \
-              --exclude _deps \
-              --exclude tests \
-              --exclude external \
+          find . -name '*.gcda' | head -5
+          # Generate coverage - fix duplicate --output issue  
+          echo "Generating coverage XML with gcovr..."
+          if gcovr --verbose \
+              --root="$ROOT_DIR" \
+              --filter="$ROOT_DIR/src/" \
+              --filter="$ROOT_DIR/include/" \
+              --exclude='.*/_deps/.*' \
+              --exclude='.*external.*' \
+              --exclude='.*/tests/.*' \
               --gcov-ignore-parse-errors \
               --xml-pretty \
-              --output build/coverage/coverage.xml \
+              --output=coverage.xml \
               --print-summary \
-              build/coverage/; then
-            echo "✅ gcovr XML generation succeeded"
-            # Generate HTML separately to avoid --output conflict
+              .; then
+            echo "✅ gcovr XML succeeded. Generating HTML separately..."
+            # Generate HTML in separate command to avoid --output conflict
             gcovr \
-              --root . \
-              --filter src/ \
-              --exclude _deps \
-              --exclude tests \
-              --exclude external \
+              --root="$ROOT_DIR" \
+              --filter="$ROOT_DIR/src/" \
+              --filter="$ROOT_DIR/include/" \
+              --exclude='.*/_deps/.*' \
+              --exclude='.*external.*' \
+              --exclude='.*/tests/.*' \
               --html-details \
-              --output build/coverage/coverage.html \
-              build/coverage/ || echo "HTML generation failed but continuing"
+              --html-title="DAW Project Coverage Report" \
+              --output=coverage.html \
+              . || echo "HTML generation failed but XML succeeded"
           else
-            echo "❌ gcovr failed, debugging..."
-            # Try minimal gcovr to see what's wrong
-            echo "Testing gcov directly:"
-            cd build/coverage
-            if ls CMakeFiles/dawproject_data.dir/src/data/data_access_engine_impl.cpp.gc* 2>/dev/null; then
-              echo "Found gcov files for data_access_engine_impl.cpp"
-              gcov CMakeFiles/dawproject_data.dir/src/data/data_access_engine_impl.cpp.gcda --object-directory CMakeFiles/dawproject_data.dir/src/data || echo "gcov failed"
+            echo '❌ gcovr XML failed. Checking gcov data...'
+            # Run gcov directly to see if the problem is with gcovr or gcov
+            find . -name "*.gcda" -path "*dawproject*" | head -3 | while read gcda_file; do
+              echo "Testing gcov on: $gcda_file"
+              gcov "$gcda_file" 2>/dev/null | grep "Lines executed" || echo "gcov failed on $gcda_file"
+            done
+            echo 'gcovr failed (non-zero exit). Capturing diagnostics:'
+            find . -name '*.o' | head -n 40 || true
+            if [ ! -f coverage.xml ]; then
+              echo 'Creating fallback zero coverage XML.'
+              echo '<coverage line-rate="0.0" branch-rate="0.0"></coverage>' > coverage.xml
             fi
-            cd ../..
           fi
-          # Ensure we have XML output for next step
-          if [ ! -f build/coverage/coverage.xml ]; then
-            echo 'gcovr failed completely. Creating fallback zero coverage XML.'
-            echo '<coverage line-rate="0.0" branch-rate="0.0"></coverage>' > build/coverage/coverage.xml
-          elif [ ! -s build/coverage/coverage.xml ]; then
+          if [ ! -s coverage.xml ]; then
             echo 'coverage.xml exists but is empty; writing zero coverage XML.'
-            echo '<coverage line-rate="0.0" branch-rate="0.0"></coverage>' > build/coverage/coverage.xml
-          else
-            echo "✅ coverage.xml generated successfully"
-            # Show a snippet of the coverage file for verification
-            head -5 build/coverage/coverage.xml || echo "Could not read coverage.xml"
+            echo '<coverage line-rate="0.0" branch-rate="0.0"></coverage>' > coverage.xml
           fi
       - name: Enforce Coverage Threshold
         run: |
