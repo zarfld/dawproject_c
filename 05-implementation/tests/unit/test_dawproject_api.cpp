@@ -153,6 +153,102 @@ TEST_CASE_METHOD(DawProjectAPITests, "US-001: Error Handling - Clear error messa
     }
 }
 
+TEST_CASE_METHOD(DawProjectAPITests, "Exception Method Coverage - DawProjectException getFilePath() and getMessage()", "[dawproject][api][exception-coverage]") {
+    SECTION("Test DawProjectException::getFilePath() with file path") {
+        // Test exception with file path - should return the path
+        std::filesystem::path testPath = tempDir_ / "test_exception.dwp";
+        
+        try {
+            throw DawProjectException("Test message", testPath);
+        } catch (const DawProjectException& e) {
+            // Test getFilePath() method
+            REQUIRE(e.getFilePath() == testPath);
+            REQUIRE_FALSE(e.getFilePath().empty());
+            
+            // Verify what() includes both message and path
+            std::string whatMsg = e.what();
+            REQUIRE(whatMsg.find("Test message") != std::string::npos);
+            REQUIRE(whatMsg.find(testPath.string()) != std::string::npos);
+        }
+    }
+    
+    SECTION("Test DawProjectException::getFilePath() without file path") {
+        // Test exception without file path - should return empty path
+        try {
+            throw DawProjectException("Test message without path");
+        } catch (const DawProjectException& e) {
+            // Test getFilePath() method returns empty path
+            REQUIRE(e.getFilePath().empty());
+            
+            // Verify what() contains only message
+            std::string whatMsg = e.what();
+            REQUIRE(whatMsg == "Test message without path");
+        }
+    }
+    
+    SECTION("Test DawProjectException::getMessage() method") {
+        // Test that getMessage() returns raw message without path formatting
+        std::string testMessage = "Raw test message";
+        std::filesystem::path testPath = tempDir_ / "some_file.dwp";
+        
+        try {
+            throw DawProjectException(testMessage, testPath);
+        } catch (const DawProjectException& e) {
+            // Test getMessage() returns raw message only
+            REQUIRE(e.getMessage() == testMessage);
+            
+            // Verify what() is different (includes path)
+            REQUIRE(e.what() != testMessage);
+            REQUIRE(std::string(e.what()).find(testMessage) != std::string::npos);
+            REQUIRE(std::string(e.what()).find(testPath.string()) != std::string::npos);
+        }
+    }
+    
+    SECTION("Test FileNotFoundException constructor with different path types") {
+        SECTION("Absolute path") {
+            std::filesystem::path absPath = std::filesystem::absolute(tempDir_ / "absolute_test.dwp");
+            try {
+                throw FileNotFoundException(absPath);
+            } catch (const FileNotFoundException& e) {
+                REQUIRE(e.getFilePath() == absPath);
+                REQUIRE(std::string(e.what()).find("File not found") != std::string::npos);
+                REQUIRE(std::string(e.what()).find(absPath.string()) != std::string::npos);
+            }
+        }
+        
+        SECTION("Relative path") {
+            std::filesystem::path relPath = "relative/test.dwp";
+            try {
+                throw FileNotFoundException(relPath);
+            } catch (const FileNotFoundException& e) {
+                REQUIRE(e.getFilePath() == relPath);
+                REQUIRE(std::string(e.what()).find(relPath.string()) != std::string::npos);
+            }
+        }
+        
+        SECTION("Empty path") {
+            std::filesystem::path emptyPath;
+            try {
+                throw FileNotFoundException(emptyPath);
+            } catch (const FileNotFoundException& e) {
+                REQUIRE(e.getFilePath().empty());
+                // Should still have meaningful error message
+                REQUIRE_FALSE(std::string(e.what()).empty());
+            }
+        }
+        
+        SECTION("Path with special characters") {
+            std::filesystem::path specialPath = tempDir_ / "test with spaces & symbols!@#.dwp";
+            try {
+                throw FileNotFoundException(specialPath);
+            } catch (const FileNotFoundException& e) {
+                REQUIRE(e.getFilePath() == specialPath);
+                REQUIRE(std::string(e.what()).find(specialPath.string()) != std::string::npos);
+            }
+        }
+    }
+}
+
 TEST_CASE_METHOD(DawProjectAPITests, "US-001: Data Access - All project elements accessible through object-oriented interface", "[dawproject][api][us-001][data-access]") {
     auto project = DawProject::load(validProjectPath_);
     REQUIRE(project != nullptr);
@@ -703,6 +799,84 @@ TEST_CASE_METHOD(EditProjectAPITests, "US-003: Track Editing - Add, remove, rena
     }
 }
 
+TEST_CASE_METHOD(EditProjectAPITests, "US-003: Undo/Redo Empty Stack Edge Cases", "[dawproject][api][us-003][undo-redo-edge-cases]") {
+    SECTION("Undo with empty stack throws exception") {
+        // Create fresh project with no operations
+        auto project = DawProject::load(editProjectPath_);
+        REQUIRE(project != nullptr);
+        
+        // Attempt undo with no operations in stack
+        REQUIRE_THROWS_AS(project->undo(), DawProjectException);
+        
+        try {
+            project->undo();
+            FAIL("Should have thrown DawProjectException");
+        } catch (const DawProjectException& e) {
+            std::string errorMsg = e.what();
+            REQUIRE(errorMsg.find("No operations to undo") != std::string::npos);
+        }
+    }
+    
+    SECTION("Redo with empty stack throws exception") {
+        // Create fresh project with no operations
+        auto project = DawProject::load(editProjectPath_);
+        REQUIRE(project != nullptr);
+        
+        // Attempt redo with no operations in redo stack
+        REQUIRE_THROWS_AS(project->redo(), DawProjectException);
+        
+        try {
+            project->redo();
+            FAIL("Should have thrown DawProjectException");
+        } catch (const DawProjectException& e) {
+            std::string errorMsg = e.what();
+            REQUIRE(errorMsg.find("No operations to redo") != std::string::npos);
+        }
+    }
+    
+    SECTION("Redo after new operation clears redo stack") {
+        auto project = DawProject::load(editProjectPath_);
+        REQUIRE(project != nullptr);
+        
+        // Perform operation, then undo
+        project->addTrack("Test Track", data::TrackType::Audio);
+        project->undo();
+        
+        // Now we should be able to redo
+        REQUIRE_NOTHROW(project->redo());
+        
+        // Perform new operation (should clear redo stack)
+        project->renameTrack(0, "New Name");
+        
+        // Now redo should fail because stack was cleared
+        REQUIRE_THROWS_AS(project->redo(), DawProjectException);
+        
+        try {
+            project->redo();
+            FAIL("Should have thrown DawProjectException");
+        } catch (const DawProjectException& e) {
+            std::string errorMsg = e.what();
+            REQUIRE(errorMsg.find("No operations to redo") != std::string::npos);
+        }
+    }
+    
+    SECTION("Multiple undos until stack is empty") {
+        auto project = DawProject::load(editProjectPath_);
+        REQUIRE(project != nullptr);
+        
+        // Perform two operations
+        project->addTrack("Track 1", data::TrackType::Audio);
+        project->addTrack("Track 2", data::TrackType::Audio);
+        
+        // Undo both operations
+        REQUIRE_NOTHROW(project->undo()); // Undo second add
+        REQUIRE_NOTHROW(project->undo()); // Undo first add
+        
+        // Third undo should fail - stack is empty
+        REQUIRE_THROWS_AS(project->undo(), DawProjectException);
+    }
+}
+
 TEST_CASE_METHOD(EditProjectAPITests, "US-003: Thread Safety - Edits are safe in multi-threaded contexts", "[dawproject][api][us-003][thread-safety]") {
     SECTION("Concurrent track edits") {
         auto project = DawProject::load(editProjectPath_);
@@ -1081,6 +1255,164 @@ TEST_CASE_METHOD(DawProjectAPITests, "US-004: Gherkin Scenarios - BDD compliance
             if (!issue.recommendation.empty()) {
                 REQUIRE(!issue.recommendation.empty());
             }
+        }
+    }
+}
+
+TEST_CASE_METHOD(EditProjectAPITests, "US-004: Extreme Edge Cases - Compliance analysis with extreme scenarios", "[us-004][extreme-edge-cases]") {
+    SECTION("Project with many tracks (100+) - performance validation") {
+        auto project = DawProject::load(editProjectPath_);
+        REQUIRE(project != nullptr);
+        
+        // Add 120 tracks to test large project handling
+        for (int i = 0; i < 120; ++i) {
+            std::string trackName = "Track " + std::to_string(i + 1);
+            data::TrackType trackType = (i % 2 == 0) ? data::TrackType::Audio : data::TrackType::Instrument;
+            project->addTrack(trackName, trackType);
+        }
+        
+        // Analyze compliance - should handle large project
+        REQUIRE_NOTHROW([&]() {
+            auto analysis = project->analyzeCompliance();
+            
+            // Should detect large track count warning
+            bool hasLargeTrackWarning = false;
+            for (const auto& issue : analysis.validationIssues) {
+                if (issue.issueName.find("Large Track Count") != std::string::npos) {
+                    hasLargeTrackWarning = true;
+                    REQUIRE(issue.severity == "info");
+                    REQUIRE(!issue.recommendation.empty());
+                }
+            }
+            REQUIRE(hasLargeTrackWarning);
+            
+            // Statistics should be accurate
+            REQUIRE(analysis.statistics.at("Track Count") == "120");
+            REQUIRE(std::stoi(analysis.statistics.at("Audio Tracks")) == 60);
+            REQUIRE(std::stoi(analysis.statistics.at("Instrument Tracks")) == 60);
+            
+            // Features should be detected
+            bool hasAudioFeature = false;
+            bool hasInstrumentFeature = false;
+            for (const auto& feature : analysis.featuresUsed) {
+                if (feature.find("Audio Tracks") != std::string::npos) hasAudioFeature = true;
+                if (feature.find("Instrument Tracks") != std::string::npos) hasInstrumentFeature = true;
+            }
+            REQUIRE(hasAudioFeature);
+            REQUIRE(hasInstrumentFeature);
+        }());
+    }
+    
+    SECTION("Empty metadata fields - validation warnings") {
+        auto project = DawProject::load(editProjectPath_);
+        REQUIRE(project != nullptr);
+        
+        // Project should start with empty/default metadata
+        auto analysis = project->analyzeCompliance();
+        
+        // Should detect missing title warning
+        bool hasMissingTitleWarning = false;
+        for (const auto& issue : analysis.validationIssues) {
+            if (issue.issueName.find("Missing Title") != std::string::npos) {
+                hasMissingTitleWarning = true;
+                REQUIRE(issue.severity == "info");
+                REQUIRE(issue.description.find("no title metadata") != std::string::npos);
+                REQUIRE(!issue.recommendation.empty());
+            }
+        }
+        REQUIRE(hasMissingTitleWarning);
+    }
+    
+    SECTION("Track names with special characters") {
+        auto project = DawProject::load(editProjectPath_);
+        REQUIRE(project != nullptr);
+        
+        // Add tracks with special characters, unicode, etc.
+        std::vector<std::string> specialNames = {
+            "Track with spaces & symbols!@#$%^&*()",
+            "Tràck wíth àccénts",
+            "Track\twith\ttabs",
+            "Track\nwith\nnewlines",
+            "Track with \"quotes\" and 'apostrophes'",
+            "Track with <xml> & entities",
+            "🎵 Music Track 🎵",
+            "",  // Empty name
+            "Very long track name that exceeds normal length expectations and continues for a while to test boundary conditions and memory handling"
+        };
+        
+        for (size_t i = 0; i < specialNames.size(); ++i) {
+            REQUIRE_NOTHROW([&]() {
+                project->addTrack(specialNames[i], data::TrackType::Audio);
+            }());
+        }
+        
+        // Compliance analysis should handle special characters gracefully
+        REQUIRE_NOTHROW([&]() {
+            auto analysis = project->analyzeCompliance();
+            
+            // Should still be compliant (no errors, maybe warnings)
+            REQUIRE(analysis.isCompliant);
+            
+            // Statistics should count all tracks
+            REQUIRE(std::stoi(analysis.statistics.at("Track Count")) == specialNames.size());
+        }());
+        
+        // Verify all tracks are accessible with special names
+        const auto& tracks = project->getTracks();
+        REQUIRE(tracks.size() == specialNames.size());
+        
+        for (size_t i = 0; i < specialNames.size(); ++i) {
+            REQUIRE(tracks[i].getName() == specialNames[i]);
+        }
+    }
+    
+    SECTION("ValidationIssue construction with edge cases") {
+        // Test ValidationIssue struct with various edge cases
+        SECTION("Empty fields") {
+            ValidationIssue issue("", "", "", {}, "");
+            REQUIRE(issue.issueName.empty());
+            REQUIRE(issue.description.empty());
+            REQUIRE(issue.severity.empty());
+            REQUIRE(issue.affectedElements.empty());
+            REQUIRE(issue.recommendation.empty());
+        }
+        
+        SECTION("Very long fields") {
+            std::string longText(10000, 'A'); // 10KB string
+            ValidationIssue issue(longText, longText, "error", {"category"}, longText);
+            REQUIRE(issue.issueName == longText);
+            REQUIRE(issue.description == longText);
+            REQUIRE(issue.recommendation == longText);
+        }
+        
+        SECTION("Special characters in fields") {
+            ValidationIssue issue(
+                "Title with <xml> & \"quotes\" 🎵",
+                "Description\nwith\nnewlines\tand\ttabs",
+                "warning",
+                {"Category with spaces", "Category/with/slashes", "Category.with.dots"},
+                "Recommendation with àccénts & symbols!@#"
+            );
+            REQUIRE(!issue.issueName.empty());
+            REQUIRE(!issue.description.empty());
+            REQUIRE(issue.affectedElements.size() == 3);
+        }
+        
+        SECTION("All severity levels") {
+            std::vector<std::string> severities = {"info", "warning", "error", "critical", "debug", ""};
+            for (const auto& severity : severities) {
+                ValidationIssue issue("Test", "Test description", severity, {"test"}, "Fix it");
+                REQUIRE(issue.severity == severity);
+            }
+        }
+        
+        SECTION("Large category list") {
+            std::vector<std::string> manyCategories;
+            for (int i = 0; i < 100; ++i) {
+                manyCategories.push_back("Category " + std::to_string(i));
+            }
+            ValidationIssue issue("Test", "Test", "info", manyCategories, "Test");
+            REQUIRE(issue.affectedElements.size() == 100);
         }
     }
 }
