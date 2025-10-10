@@ -177,24 +177,23 @@ jobs:
           
           echo "=== Running gcovr with verbose output ==="
           set -x  # Enable command tracing
-          # Let's investigate the actual source structure to fix path resolution
-          echo "=== Investigating source file structure ==="
+          # Create symbolic links to help gcovr find Catch2 sources
+          echo "=== Setting up source path resolution ==="
           echo "Catch2 source location:"
-          find build/coverage/_deps -name "catch_errno_guard.cpp" -o -name "catch2" -type d | head -5 || true
-          echo "Sample .gcda files and their source expectations:"
-          find build/coverage -name "*.gcda" -path "*catch*" | head -3 | while read gcda_file; do
-            echo "GCDA: $gcda_file"
-            gcov "$gcda_file" 2>&1 | grep "Cannot open source file" | head -2 || true
-          done
+          find build/coverage/_deps -name "catch2" -type d | head -3 || true
+          
+          # Create symlink so gcovr can find catch2 sources at expected path
+          if [ -d "build/coverage/_deps/catch2-src" ]; then
+            ln -sf "$(pwd)/build/coverage/_deps/catch2-src/src/catch2" src/catch2 2>/dev/null || true
+            echo "Created symlink: src/catch2 -> build/coverage/_deps/catch2-src/src/catch2"
+            ls -la src/catch2 | head -3 || echo "Symlink creation failed"
+          fi
           
           if gcovr \
               --verbose \
               --root . \
               --filter "^src/" \
               --filter "^include/" \
-              --search-path build/coverage/_deps/catch2-src \
-              --search-path build/coverage/_deps/catch2-src/src \
-              --search-path . \
               --gcov-ignore-parse-errors \
               --gcov-ignore-errors no_working_dir_found \
               --xml-pretty \
@@ -208,9 +207,6 @@ jobs:
               --root . \
               --filter "^src/" \
               --filter "^include/" \
-              --search-path build/coverage/_deps/catch2-src \
-              --search-path build/coverage/_deps/catch2-src/src \
-              --search-path . \
               --gcov-ignore-parse-errors \
               --gcov-ignore-errors no_working_dir_found \
               --html-details \
