@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project version="1.0">
+  <ProjectInfo title="Simple Test Project" tempo="120.0" artist="Test Artist"/>
+  <Track name="Audio Track 1" color="#FF5555" type="audio">
+    <Lane name="Lane 1">
+      <Clip name="Test Clip" start="0.0" length="4.0"/>
+    </Lane>
+  </Track>
+</Project>

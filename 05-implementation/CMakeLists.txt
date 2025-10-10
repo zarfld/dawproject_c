@@ -91,9 +91,11 @@ target_sources(dawproject_platform
         src/platform/filesystem_impl.cpp
         src/platform/memory_impl.cpp
         src/platform/platform_factory.cpp
-    PUBLIC
-        include/dawproject/platform/interfaces.h
-        include/dawproject/platform/factory.h
+)
+target_include_directories(dawproject_platform 
+    PUBLIC 
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
 )
 target_link_libraries(dawproject_platform 
     PUBLIC dawproject_common
@@ -109,9 +111,11 @@ target_sources(dawproject_data
         src/data/xml_processor_impl.cpp
         src/data/zip_processor_impl.cpp
         src/data/data_access_engine_extracted.cpp
-    PUBLIC
-        include/dawproject/data/data_access_engine.h
-        include/dawproject/data/data_access_factory.h
+)
+target_include_directories(dawproject_data 
+    PUBLIC 
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
 )
 target_link_libraries(dawproject_data
     PUBLIC dawproject_platform dawproject_common
@@ -119,7 +123,7 @@ target_link_libraries(dawproject_data
 )
 
 # Install rules (needed for packaging and staging deploy)
-install(TARGETS dawproject_platform dawproject_data
+install(TARGETS dawproject_common dawproject_platform dawproject_data
     EXPORT dawprojectTargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
@@ -138,9 +142,27 @@ set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PROJECT_VERSION}")
 if(ENABLE_TESTING)
     enable_testing()
     
+    # Setup test data structure (IEEE 1012-2016 V&V requirements)
+    set(TEST_DATA_DIR "${CMAKE_CURRENT_BINARY_DIR}/tests/data")
+    file(MAKE_DIRECTORY "${TEST_DATA_DIR}/fixtures/valid")
+    file(MAKE_DIRECTORY "${TEST_DATA_DIR}/fixtures/invalid")
+    file(MAKE_DIRECTORY "${TEST_DATA_DIR}/fixtures/edge-cases")
+    
+    # Copy existing test data files if they exist
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/data")
+        file(GLOB_RECURSE TEST_DATA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/tests/data/*")
+        foreach(DATA_FILE ${TEST_DATA_FILES})
+            file(RELATIVE_PATH REL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/tests/data" "${DATA_FILE}")
+            configure_file("${DATA_FILE}" "${TEST_DATA_DIR}/${REL_PATH}" COPYONLY)
+        endforeach()
+    endif()
+    
     # RED phase test for data access layer
     add_executable(test_data_red
         tests/unit/test_data_access_red.cpp
+    )
+    target_include_directories(test_data_red PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests
     )
     target_link_libraries(test_data_red
         PRIVATE dawproject_data Catch2::Catch2WithMain
@@ -178,6 +200,9 @@ if(ENABLE_TESTING)
 
     # Smoke test to guarantee baseline line coverage for core components
     add_executable(smoke_coverage tests/unit/test_smoke_coverage.cpp)
+    target_include_directories(smoke_coverage PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests
+    )
     target_link_libraries(smoke_coverage PRIVATE dawproject_data Catch2::Catch2WithMain)
     catch_discover_tests(smoke_coverage TEST_PREFIX smoke::)
 endif()

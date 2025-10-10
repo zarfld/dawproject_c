@@ -6,6 +6,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <dawproject/platform/factory.h>
 #include <dawproject/data/data_access_factory.h>
+#include "../common/test_data_helper.h"
 
 using namespace dawproject::platform;
 using namespace dawproject::data;
@@ -25,6 +26,7 @@ TEST_CASE("Smoke: create core components", "[smoke][coverage]") {
 
     auto engine = DataAccessFactory::createDataAccessEngine();
     REQUIRE(engine != nullptr);
-    auto reader = engine->createReader("nonexistent.dawproject");
+    auto nonExistentPath = TestData::getNonExistentDAWProject();
+    auto reader = engine->createReader(nonExistentPath.string());
     REQUIRE(reader != nullptr); // Reader construction succeeds; open() failure acceptable for nonexistent file.
 }

@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include "../common/test_data_helper.h"
 
 using namespace dawproject::data;
 using namespace std::filesystem;
@@ -181,7 +182,8 @@ TEST_CASE("Data Access Engine - Load Project Info", "[data-access]") {
     auto engine = DataAccessFactory::createDataAccessEngine();
     
     // Test with non-existent file
-    auto result = engine->loadProjectInfo("nonexistent.dawproject");
+    auto nonExistentPath = TestData::getNonExistentDAWProject();
+    auto result = engine->loadProjectInfo(nonExistentPath.string());
     REQUIRE_FALSE(result.success);
     REQUIRE_FALSE(result.errorMessage.empty());
 }
@@ -190,7 +192,8 @@ TEST_CASE("Data Access Engine - Load Tracks", "[data-access]") {
     auto engine = DataAccessFactory::createDataAccessEngine();
     
     // Test with non-existent file
-    auto result = engine->loadTracks("nonexistent.dawproject");
+    auto nonExistentPath = TestData::getNonExistentDAWProject();
+    auto result = engine->loadTracks(nonExistentPath.string());
     REQUIRE_FALSE(result.success);
     REQUIRE_FALSE(result.errorMessage.empty());
 }
@@ -199,7 +202,8 @@ TEST_CASE("Data Access Engine - Load Clips", "[data-access]") {
     auto engine = DataAccessFactory::createDataAccessEngine();
     
     // Test with non-existent file
-    auto result = engine->loadClips("nonexistent.dawproject");
+    auto nonExistentPath = TestData::getNonExistentDAWProject();
+    auto result = engine->loadClips(nonExistentPath.string());
     REQUIRE_FALSE(result.success);
     REQUIRE_FALSE(result.errorMessage.empty());
 }
@@ -208,7 +212,8 @@ TEST_CASE("Data Access Engine - Validate File", "[data-access]") {
     auto engine = DataAccessFactory::createDataAccessEngine();
     
     // Test with non-existent file
-    auto result = engine->validateFile("nonexistent.dawproject");
+    auto nonExistentPath = TestData::getNonExistentDAWProject();
+    auto result = engine->validateFile(nonExistentPath.string());
     REQUIRE_FALSE(result.isValid);
     REQUIRE_FALSE(result.errors.empty());
 }
@@ -217,15 +222,17 @@ TEST_CASE("Data Access Engine - Is Valid Project File", "[data-access]") {
     auto engine = DataAccessFactory::createDataAccessEngine();
     
     // Test with non-existent file
-    bool isValid = engine->isValidProjectFile("nonexistent.dawproject");
+    auto nonExistentPath = TestData::getNonExistentDAWProject();
+    bool isValid = engine->isValidProjectFile(nonExistentPath.string());
     REQUIRE_FALSE(isValid);
 }
 
 TEST_CASE("Data Access Engine - Create Reader", "[data-access]") {
     auto engine = DataAccessFactory::createDataAccessEngine();
     
-    // Should create reader even for non-existent file
-    auto reader = engine->createReader("test.dawproject");
+    // Should create reader for valid project file
+    auto testPath = TestData::getValidDAWProject("simple-project.dawproject");
+    auto reader = engine->createReader(testPath.string());
     REQUIRE(reader != nullptr);
 }
 
@@ -233,7 +240,8 @@ TEST_CASE("Data Access Engine - Create Writer", "[data-access]") {
     auto engine = DataAccessFactory::createDataAccessEngine();
     
     // Should create writer
-    auto writer = engine->createWriter("test.dawproject");
+    auto testPath = TestData::getValidDAWProject("simple-project.dawproject");
+    auto writer = engine->createWriter(testPath.string());
     REQUIRE(writer != nullptr);
 }
 
