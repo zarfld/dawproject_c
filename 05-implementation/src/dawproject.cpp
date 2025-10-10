@@ -393,6 +393,13 @@ namespace dawproject {
             throw DawProjectException("File path cannot be empty");
         }
 
+        // Check for invalid path characters (Windows-specific validation)
+        std::string pathStr = filePath.string();
+        const std::string invalidChars = "<>:\"|?*";
+        if (pathStr.find_first_of(invalidChars) != std::string::npos) {
+            throw DawProjectException("File path contains invalid characters", filePath);
+        }
+
         if (!impl_) {
             throw DawProjectException("Project not loaded - cannot save");
         }
