@@ -177,7 +177,6 @@ jobs:
           
           echo "=== Running gcovr with verbose output ==="
           set -x  # Enable command tracing
-          cd 05-implementation  # Change to implementation directory to simplify paths
           if gcovr \
               --verbose \
               --root . \
@@ -258,22 +257,21 @@ jobs:
               echo '<coverage line-rate="0.0" branch-rate="0.0"></coverage>' > build/coverage/coverage.xml
             fi
           fi
-          cd ..  # Return to project root from 05-implementation
-          if [ ! -s 05-implementation/build/coverage/coverage.xml ]; then
+          if [ ! -s build/coverage/coverage.xml ]; then
             echo 'coverage.xml exists but is empty; writing zero coverage XML.'
-            echo '<coverage line-rate="0.0" branch-rate="0.0"></coverage>' > 05-implementation/build/coverage/coverage.xml
+            echo '<coverage line-rate="0.0" branch-rate="0.0"></coverage>' > build/coverage/coverage.xml
           fi
       - name: Enforce Coverage Threshold
         run: |
-          cd 05-implementation/build/coverage
+          cd build/coverage
           python ../../../scripts/enforce_coverage.py --file coverage.xml --min ${{ env.MIN_TEST_COVERAGE }}
       - name: Upload Coverage Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: |
-            05-implementation/build/coverage/coverage.xml
-            05-implementation/build/coverage/coverage.html
+            build/coverage/coverage.xml
+            build/coverage/coverage.html
           if-no-files-found: ignore
       - name: Coverage Enforcement (placeholder)
         run: |
