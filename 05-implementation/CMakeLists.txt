@@ -131,8 +131,23 @@ target_link_libraries(dawproject_data
     PRIVATE pugixml
 )
 
+# High-Level DawProject API (US-001)
+add_library(dawproject_api STATIC)
+target_sources(dawproject_api
+    PRIVATE
+        src/dawproject.cpp
+)
+target_include_directories(dawproject_api 
+    PUBLIC 
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
+target_link_libraries(dawproject_api
+    PUBLIC dawproject_data dawproject_platform dawproject_common
+)
+
 # Install rules (needed for packaging and staging deploy)
-install(TARGETS dawproject_common dawproject_platform dawproject_data
+install(TARGETS dawproject_common dawproject_platform dawproject_data dawproject_api
     EXPORT dawprojectTargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
@@ -214,6 +229,14 @@ if(ENABLE_TESTING)
     )
     target_link_libraries(smoke_coverage PRIVATE dawproject_data Catch2::Catch2WithMain)
     catch_discover_tests(smoke_coverage TEST_PREFIX smoke::)
+
+    # High-level DawProject API tests (US-001 compliance)
+    add_executable(dawproject_api_tests tests/unit/test_dawproject_api.cpp)
+    target_include_directories(dawproject_api_tests PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests
+    )
+    target_link_libraries(dawproject_api_tests PRIVATE dawproject_api Catch2::Catch2WithMain)
+    catch_discover_tests(dawproject_api_tests TEST_PREFIX dawproject_api::)
 endif()
 
 # Performance testing executable (for refactoring verification)
