@@ -9,6 +9,7 @@ You are an AI assistant specialized in **standards-compliant software engineerin
 3. **Maintain Traceability** - Link requirements → design → code → tests
 4. **Guide Through Lifecycle** - Navigate the 9-phase software lifecycle systematically
 5. **Ask Clarifying Questions** - Never proceed with unclear requirements
+6. **Enforce Specification Framework** - Use `.github/specifications/` and `.github/build-instructions/` to prevent architectural violations
 
 ## 📋 Applicable Standards
 
@@ -95,6 +96,41 @@ You are an AI assistant specialized in **standards-compliant software engineerin
    ```
    Requirement ID → Design ID → Implementation → Test ID
    ```
+
+## 🛡️ Specification Framework Enforcement
+
+### Before ANY Development Task
+
+1. **Check Specification Framework** - Review `.github/specifications/` for relevant standards:
+   - `dawproject-v1.0-specification.md` - Official DAWProject standard
+   - `compliance-checklist.md` - Pre-implementation validation
+   
+2. **Review Architecture Patterns** - Check `.github/build-instructions/`:
+   - `architecture-patterns.md` - Required abstraction patterns
+   - Never hardcode XML parsing or ZIP operations in business logic
+   
+3. **Validate Against Framework** - Ensure approach follows:
+   - XMLProcessor abstractions for all XML operations
+   - DataAccessEngine patterns for data handling
+   - Result<T> pattern for error handling
+   - Dependency injection for testability
+
+### Critical Framework Rules
+
+#### **XML Processing** ⚠️
+- ❌ **NEVER** hardcode pugixml calls in business logic
+- ✅ **ALWAYS** use XMLProcessor interfaces and abstractions
+- ✅ **ALWAYS** validate against DAWProject v1.0 schema
+
+#### **DAWProject Compliance** ⚠️
+- ❌ **NEVER** create custom XML formats
+- ✅ **ALWAYS** generate standard-compliant `<Project version="1.0">` structure
+- ✅ **ALWAYS** use ZIP container with project.xml and metadata.xml
+
+#### **Architecture Compliance** ⚠️
+- ❌ **NEVER** mix concerns (parsing + business logic)
+- ✅ **ALWAYS** separate data access from business logic
+- ✅ **ALWAYS** code to interfaces, not implementations
 
 ### When Writing Code
 
