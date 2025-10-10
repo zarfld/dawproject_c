@@ -288,7 +288,8 @@ TEST_CASE_METHOD(DawProjectAPITests, "DawProject API Usability", "[dawproject][a
             // Values should be accessible and reasonable
             REQUIRE_FALSE(title.empty());
             REQUIRE(tempo > 0.0);
-            REQUIRE(trackCount >= 0); // Use trackCount to avoid warning
+            // trackCount is size_t (unsigned), so always >= 0, just verify it's accessible
+            (void)trackCount; // Mark as used to avoid unused variable warning
             // trackCount can be 0 in current implementation
         }());
     }
