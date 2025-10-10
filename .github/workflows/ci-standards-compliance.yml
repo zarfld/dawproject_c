@@ -263,8 +263,13 @@ jobs:
           fi
       - name: Enforce Coverage Threshold
         run: |
-          cd build/coverage
-          python ../../../scripts/enforce_coverage.py --file coverage.xml --min ${{ env.MIN_TEST_COVERAGE }}
+          echo "=== Coverage Threshold Enforcement ==="
+          echo "Current directory: $(pwd)"
+          echo "Looking for coverage.xml file..."
+          ls -la build/coverage/coverage.xml || echo "coverage.xml not found"
+          
+          # Run coverage enforcement from correct directory
+          python scripts/enforce_coverage.py --file build/coverage/coverage.xml --min ${{ env.MIN_TEST_COVERAGE }}
       - name: Upload Coverage Artifacts
         uses: actions/upload-artifact@v4
         with:
