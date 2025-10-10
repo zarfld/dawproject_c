@@ -14,9 +14,9 @@ traceability:
 
 # ADR-005: Fixing Broken Requirements Traceability (US-004 Requirements Disaster)
 
-**Status**: Accepted  
-**Date**: 2025-10-10  
-**Deciders**: Standards-Compliant Development Team  
+## Status
+
+Accepted (Emergency fix approved by Standards-Compliant Development Team on 2025-10-10)
 
 ## Context
 
@@ -143,6 +143,30 @@ ComplianceAnalysis analyzeCompliance() const;
 4. Review requirement with domain experts
 5. Document architectural decisions (ADRs)
 ```
+
+## Decision
+
+We decide to:
+
+1. **Completely replace US-004** from "Cross-DAW Compatibility Testing" to "DAWProject Standard Compliance Analysis"
+2. **Fix broken traceability** by updating reference from non-existent "StR-003" to actual "STR-BUS-001"
+3. **Implement proper scope** focusing on DAWProject specification compliance rather than DAW behavior simulation
+4. **Establish mandatory validation** of all requirement references before implementation
+5. **Document this failure** as architectural decision to prevent future occurrences
+
+## Consequences
+
+### Positive
+- ✅ **Proper Scope**: Now tests what we're actually responsible for
+- ✅ **Standards Compliance**: Aligns with DAWProject's universal format principle
+- ✅ **Useful Functionality**: Provides actual value to DAW developers
+- ✅ **Correct Traceability**: All requirements properly linked
+- ✅ **Prevention Process**: Established validation procedures
+
+### Negative
+- ❌ **Development Time Lost**: Time spent implementing wrong requirements
+- ❌ **Technical Debt Created**: Had to rewrite entire US-004 implementation
+- ❌ **Trust Impact**: Requirements engineering failure damages confidence
 
 ## Verification
 
