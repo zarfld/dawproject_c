@@ -131,11 +131,13 @@ public:
         
         if (alignment <= sizeof(void*) && !wasAligned) {
             // Standard reallocation for regular memory
+            // Store original pointer before realloc since realloc may invalidate it
+            void* originalPtr = ptr;
             newPtr = std::realloc(ptr, newSize);
             if (newPtr != nullptr) {
-                // Update tracking
+                // Update tracking - use stored originalPtr, not potentially invalidated ptr
                 totalAllocated_ -= oldSize;
-                allocations_.erase(allocations_.find(ptr));
+                allocations_.erase(allocations_.find(originalPtr));
                 
                 allocations_[newPtr] = newSize;
                 totalAllocated_ += newSize;
