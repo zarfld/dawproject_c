@@ -1,0 +1,6 @@
+# Simple test to demonstrate new compatibility logic
+cmake_minimum_required(VERSION 3.20)
+
+add_executable(test_compatibility test_new_compatibility.cpp)
+target_link_libraries(test_compatibility dawproject_api dawproject_data dawproject_platform pugixml::static)
+target_include_directories(test_compatibility PRIVATE include)

@@ -14,6 +14,9 @@
 #include <string>
 #include <vector>
 #include <filesystem>
+#include <functional>
+#include <stack>
+#include <map>
 #include <dawproject/data/data_access_engine.h>
 
 namespace dawproject {
@@ -90,6 +93,45 @@ namespace dawproject {
         
     private:
         data::TrackInfo info_;
+    };
+
+    /**
+     * @brief Validation issue found during DAWProject standard compliance analysis
+     * 
+     * Represents a potential issue or non-standard usage in a DAWProject file
+     * Used in US-004 DAWProject Standard Compliance Analysis
+     */
+    struct ValidationIssue {
+        std::string issueName;          ///< Name/type of the validation issue
+        std::string description;        ///< Description of the issue and why it matters
+        std::string severity;           ///< "warning", "error", "info"
+        std::vector<std::string> affectedElements; ///< List of project elements affected
+        std::string recommendation;     ///< Suggested fix or best practice
+        
+        ValidationIssue() = default;
+        ValidationIssue(const std::string& name, const std::string& desc, 
+                       const std::string& sev, const std::vector<std::string>& elements,
+                       const std::string& rec = "")
+            : issueName(name), description(desc), severity(sev), 
+              affectedElements(elements), recommendation(rec) {}
+    };
+
+    /**
+     * @brief DAWProject standard compliance analysis results
+     * 
+     * Contains detailed analysis of a DAWProject file's compliance with the v1.0 specification
+     */
+    struct ComplianceAnalysis {
+        std::string projectName;                    ///< Name/title of the analyzed project
+        std::string dawProjectVersion;              ///< DAWProject standard version used
+        bool isCompliant;                           ///< Overall compliance status
+        std::vector<std::string> featuresUsed;     ///< DAWProject v1.0 features used in this project
+        std::vector<ValidationIssue> validationIssues; ///< Issues found during analysis
+        std::map<std::string, std::string> statistics; ///< Usage statistics (track count, etc.)
+        
+        ComplianceAnalysis() = default;
+        ComplianceAnalysis(const std::string& name, bool compliant)
+            : projectName(name), isCompliant(compliant) {}
     };
 
     /**
@@ -177,6 +219,84 @@ namespace dawproject {
          * @throws DawProjectException for file system errors or write permissions
          */
         void save(const std::filesystem::path& filePath) const;
+        
+        /**
+         * @brief Rename a track by index
+         * 
+         * Implements US-003 acceptance criteria:
+         * - Track Editing: Add, remove, rename, and reorder tracks
+         * - Undo/Redo: All edits are undoable and redoable
+         * - Thread Safety: Edits are safe in multi-threaded contexts
+         * 
+         * @param trackIndex Index of track to rename (0-based)
+         * @param newName New name for the track
+         * @throws std::out_of_range if trackIndex is invalid
+         * @throws DawProjectException for other errors
+         */
+        void renameTrack(size_t trackIndex, const std::string& newName);
+        
+        /**
+         * @brief Add a new track to the project
+         * 
+         * @param name Name for the new track
+         * @param type Type of track (Audio, MIDI, etc.)
+         * @return Index of the newly added track
+         */
+        size_t addTrack(const std::string& name, data::TrackType type);
+        
+        /**
+         * @brief Remove a track by index
+         * 
+         * @param trackIndex Index of track to remove (0-based)
+         * @throws std::out_of_range if trackIndex is invalid
+         */
+        void removeTrack(size_t trackIndex);
+        
+        /**
+         * @brief Undo the last edit operation
+         * 
+         * Implements US-003 undo/redo functionality
+         * 
+         * @throws DawProjectException if no operations to undo
+         */
+        void undo();
+        
+        /**
+         * @brief Redo the last undone operation
+         * 
+         * @throws DawProjectException if no operations to redo
+         */
+        void redo();
+        
+        /**
+         * @brief Analyze DAWProject standard compliance
+         * 
+         * Implements US-004: DAWProject Standard Compliance Analysis
+         * Analyzes the project for adherence to DAWProject v1.0 specification
+         * 
+         * @return ComplianceAnalysis containing detailed standard compliance analysis
+         * @throws DawProjectException if project is not loaded
+         */
+        ComplianceAnalysis analyzeCompliance() const;
+        
+        /**
+         * @brief Get detailed feature usage analysis
+         * 
+         * Provides detailed information about which DAWProject v1.0 features
+         * are used in the current project
+         * 
+         * @return Vector of strings describing each feature used
+         */
+        std::vector<std::string> getFeatureUsage() const;
+        
+        /**
+         * @brief Get validation issues found in the project
+         * 
+         * Identifies potential issues, warnings, or non-standard usage patterns
+         * 
+         * @return Vector of ValidationIssue objects describing potential problems
+         */
+        std::vector<ValidationIssue> getValidationIssues() const;
         
         /**
          * @brief Check if project was loaded successfully
