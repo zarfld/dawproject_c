@@ -186,6 +186,7 @@ jobs:
               --exclude external \
               --exclude tests \
               --gcov-ignore-parse-errors \
+              --gcov-ignore-errors no_working_dir_found \
               --xml-pretty \
               --output build/coverage/coverage.xml \
               --print-summary \
@@ -200,6 +201,8 @@ jobs:
               --exclude _deps \
               --exclude external \
               --exclude tests \
+              --gcov-ignore-parse-errors \
+              --gcov-ignore-errors no_working_dir_found \
               --html-details \
               --html-title "DAW Project Coverage Report" \
               --output build/coverage/coverage.html \
