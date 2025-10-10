@@ -29,10 +29,18 @@ userStory: US-004
 
 ## Acceptance Criteria
 
+**External Authority Compliance**: All validation MUST use official DAWProject specification:
+
+- **Project Schema**: <https://raw.githubusercontent.com/bitwig/dawproject/main/Project.xsd>
+- **Metadata Schema**: <https://raw.githubusercontent.com/bitwig/dawproject/main/MetaData.xsd>
+- **Format Reference**: <https://htmlpreview.github.io/?https://github.com/bitwig/dawproject/blob/main/Reference.html>
+
 Traceability References: REQ-F-001, REQ-F-002, REQ-F-003
 
-- [ ] **Standard Validation**: Analyze files for DAWProject v1.0 specification compliance (REQ-F-001)
+- [ ] **External Schema Validation**: Validate files against external Project.xsd and MetaData.xsd schemas
+- [ ] **Standard Validation**: Analyze files for DAWProject v1.0 specification compliance using external authority
 - [ ] **Feature Analysis**: Report which DAWProject features are used in the file (REQ-F-002)
+- [ ] **Interoperability Check**: Verify compatibility with Bitwig Studio and PreSonus Studio One
 - [ ] **Validation Warnings**: Identify potential format issues or non-standard usage
 - [ ] **Implementation Guidance**: Provide guidance for proper DAWProject handling
 

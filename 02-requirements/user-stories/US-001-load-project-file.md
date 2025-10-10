@@ -28,12 +28,22 @@ traceability:
 
 ## Acceptance Criteria
 
+**External Authority Compliance**: All criteria must validate against official DAWProject specification:
+
+- **Project Schema**: <https://raw.githubusercontent.com/bitwig/dawproject/main/Project.xsd>
+- **Metadata Schema**: <https://raw.githubusercontent.com/bitwig/dawproject/main/MetaData.xsd>
+- **Format Reference**: <https://htmlpreview.github.io/?https://github.com/bitwig/dawproject/blob/main/Reference.html>
+
 Traceability References: REQ-F-001, REQ-F-002
 
 - [ ] **Simple API**: Load project with single function call `DawProject::load("file.dawproject")`
+- [ ] **External Schema Compliance**: All loaded data MUST conform to external Project.xsd schema
+- [ ] **Container Format**: MUST support ZIP container format per external DAWProject specification
 - [ ] **Error Handling**: Clear error messages for malformed or missing files
 - [ ] **Data Access**: All project elements accessible through object-oriented interface
 - [ ] **Memory Management**: Automatic resource cleanup using RAII
+- [ ] **Interoperability**: Generated files MUST be readable by Bitwig Studio and PreSonus Studio One
+- [ ] **External Validation**: Implementation MUST validate against external test files from official repository
 - [ ] **Performance**: Load 32-track project within 30 seconds on standard hardware
 
 ## Detailed Acceptance Criteria

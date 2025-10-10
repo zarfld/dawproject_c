@@ -29,10 +29,17 @@ userStory: US-003
 
 ## Acceptance Criteria
 
+**External Authority Compliance**: All modifications MUST maintain external DAWProject specification compliance:
+
+- **Project Schema**: <https://raw.githubusercontent.com/bitwig/dawproject/main/Project.xsd>
+- **Format Reference**: <https://htmlpreview.github.io/?https://github.com/bitwig/dawproject/blob/main/Reference.html>
+
 Traceability References: REQ-F-020, REQ-F-021
 
+- [ ] **Schema Compliance**: All modifications MUST maintain compliance with external Project.xsd schema
 - [ ] **Track Editing**: Add, remove, rename, and reorder tracks
 - [ ] **Clip Editing**: Add, remove, move, and edit audio/MIDI clips
+- [ ] **Interoperability Preservation**: Edited projects MUST remain compatible with Bitwig Studio and PreSonus Studio One
 - [ ] **Automation Editing**: Add, remove, and modify automation curves
 - [ ] **Undo/Redo**: All edits are undoable and redoable
 - [ ] **Thread Safety**: Edits are safe in multi-threaded contexts

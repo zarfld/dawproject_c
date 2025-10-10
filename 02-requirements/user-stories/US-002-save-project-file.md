@@ -29,9 +29,20 @@ userStory: US-002
 
 ## Acceptance Criteria
 
+**External Authority Compliance**: All generated files MUST conform to official DAWProject specification:
+
+- **Project Schema**: <https://raw.githubusercontent.com/bitwig/dawproject/main/Project.xsd>
+- **Metadata Schema**: <https://raw.githubusercontent.com/bitwig/dawproject/main/MetaData.xsd>
+- **Format Reference**: <https://htmlpreview.github.io/?https://github.com/bitwig/dawproject/blob/main/Reference.html>
+
 Traceability References: REQ-F-010, REQ-F-011
 
 - [ ] **Simple API**: Save project with single function call `DawProject::save("file.dawproject")`
+- [ ] **External Schema Compliance**: Generated project.xml MUST conform to external Project.xsd schema
+- [ ] **Container Format**: MUST generate ZIP container format per external DAWProject specification
+- [ ] **Metadata Compliance**: Generated metadata.xml MUST conform to external MetaData.xsd schema
+- [ ] **Interoperability**: Generated files MUST be readable by Bitwig Studio and PreSonus Studio One
+- [ ] **External Validation**: Generated files MUST pass validation against external schemas
 - [ ] **Error Handling**: Clear error messages for invalid or unwritable files
 - [ ] **Data Integrity**: All project elements are written and verifiable on reload
 - [ ] **Performance**: Save 32-track project within 30 seconds on standard hardware
