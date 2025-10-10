@@ -177,14 +177,24 @@ jobs:
           
           echo "=== Running gcovr with verbose output ==="
           set -x  # Enable command tracing
+          cd 05-implementation  # Change to implementation directory to simplify paths
           if gcovr \
               --verbose \
               --root . \
-              --filter src/ \
-              --filter include/ \
+              --filter "src/" \
+              --filter "include/" \
               --exclude _deps \
               --exclude external \
               --exclude tests \
+              --exclude catch2 \
+              --exclude CMakeFiles \
+              --exclude ".*_deps.*" \
+              --exclude ".*catch2.*" \
+              --exclude ".*CMakeFiles.*" \
+              --exclude ".*\.tcc$" \
+              --exclude ".*bits/.*" \
+              --exclude ".*c\+\+/.*" \
+              --exclude ".*gcc/.*" \
               --gcov-ignore-parse-errors \
               --gcov-ignore-errors no_working_dir_found \
               --xml-pretty \
@@ -196,11 +206,20 @@ jobs:
             # Generate HTML in separate command to avoid --output conflict
             gcovr \
               --root . \
-              --filter src/ \
-              --filter include/ \
+              --filter "src/" \
+              --filter "include/" \
               --exclude _deps \
               --exclude external \
               --exclude tests \
+              --exclude catch2 \
+              --exclude CMakeFiles \
+              --exclude ".*_deps.*" \
+              --exclude ".*catch2.*" \
+              --exclude ".*CMakeFiles.*" \
+              --exclude ".*\.tcc$" \
+              --exclude ".*bits/.*" \
+              --exclude ".*c\+\+/.*" \
+              --exclude ".*gcc/.*" \
               --gcov-ignore-parse-errors \
               --gcov-ignore-errors no_working_dir_found \
               --html-details \
@@ -239,9 +258,10 @@ jobs:
               echo '<coverage line-rate="0.0" branch-rate="0.0"></coverage>' > build/coverage/coverage.xml
             fi
           fi
-          if [ ! -s build/coverage/coverage.xml ]; then
+          cd ..  # Return to project root from 05-implementation
+          if [ ! -s 05-implementation/build/coverage/coverage.xml ]; then
             echo 'coverage.xml exists but is empty; writing zero coverage XML.'
-            echo '<coverage line-rate="0.0" branch-rate="0.0"></coverage>' > build/coverage/coverage.xml
+            echo '<coverage line-rate="0.0" branch-rate="0.0"></coverage>' > 05-implementation/build/coverage/coverage.xml
           fi
       - name: Enforce Coverage Threshold
         run: |
