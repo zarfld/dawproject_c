@@ -177,16 +177,23 @@ jobs:
           
           echo "=== Running gcovr with verbose output ==="
           set -x  # Enable command tracing
-          # Create symbolic links to help gcovr find Catch2 sources
-          echo "=== Setting up source path resolution ==="
-          echo "Catch2 source location:"
-          find build/coverage/_deps -name "catch2" -type d | head -3 || true
+          # Investigate what coverage files actually exist for project code
+          echo "=== Investigating actual project coverage files ==="
+          echo "Project source files:"
+          find src -name "*.cpp" -o -name "*.c" | head -10 || echo "No project source files found"
+          
+          echo "Project .gcda coverage files:"
+          find build/coverage -name "*.gcda" | grep -v catch2 | grep -v _deps | head -10 || echo "No project .gcda files found!"
+          
+          echo "All .gcda files by category:"
+          echo "  Catch2 files: $(find build/coverage -name "*.gcda" -path "*catch2*" | wc -l)"
+          echo "  External deps: $(find build/coverage -name "*.gcda" -path "*_deps*" | wc -l)"  
+          echo "  Project files: $(find build/coverage -name "*.gcda" | grep -v catch2 | grep -v _deps | wc -l)"
           
           # Create symlink so gcovr can find catch2 sources at expected path
           if [ -d "build/coverage/_deps/catch2-src" ]; then
             ln -sf "$(pwd)/build/coverage/_deps/catch2-src/src/catch2" src/catch2 2>/dev/null || true
             echo "Created symlink: src/catch2 -> build/coverage/_deps/catch2-src/src/catch2"
-            ls -la src/catch2 | head -3 || echo "Symlink creation failed"
           fi
           
           # First: Generate full coverage including external libraries
@@ -201,8 +208,12 @@ jobs:
               --print-summary \
               build/coverage/ 2>&1
               
-          # Second: Generate project-only coverage
-          echo "=== Project-only coverage (excluding external libraries) ==="
+          # Second: Generate project-only coverage  
+          echo "=== Project-only coverage (checking what files match filters) ==="
+          echo "Files that match ^src/ filter:"
+          find build/coverage -name "*.gcda" -exec gcov {} \; 2>/dev/null | grep "^src/" | head -5 || echo "No files match ^src/ pattern"
+          
+          echo "Attempting project-only coverage generation..."
           if gcovr \
               --verbose \
               --root . \
@@ -217,9 +228,6 @@ jobs:
               --xml-pretty \
               --output build/coverage/coverage.xml \
               --print-summary \
-              --html-details \
-              --html-title "Project Coverage (Excluding External Libraries)" \
-              --output build/coverage/coverage-project.html \
               build/coverage/ 2>&1; then
             set +x  # Disable command tracing
             echo "✅ gcovr project-only coverage succeeded!"
