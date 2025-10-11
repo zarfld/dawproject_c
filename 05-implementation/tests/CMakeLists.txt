@@ -38,6 +38,23 @@ target_include_directories(test_platform_comprehensive PRIVATE
 
 catch_discover_tests(test_platform_comprehensive)
 
+# Focused platform coverage test
+add_executable(test_platform_coverage
+    unit/test_platform_coverage.cpp
+)
+
+target_link_libraries(test_platform_coverage
+    PRIVATE 
+        dawproject_platform
+        Catch2::Catch2WithMain
+)
+
+target_include_directories(test_platform_coverage PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include
+)
+
+catch_discover_tests(test_platform_coverage)
+
 # Test executable for Data Access Layer (DES-C-003) - Existing tests
 add_executable(test_data
     unit/test_data_access_red.cpp
