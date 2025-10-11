@@ -314,8 +314,8 @@ TEST_CASE_METHOD(DawProjectFixture, "DawProject Track Operations", "[dawproject]
             size_t trackCount = tracks.size();
             
             // Try operations with invalid indices
-            REQUIRE_THROWS_AS(project->renameTrack(trackCount + 100, "Invalid"), DawProjectException);
-            REQUIRE_THROWS_AS(project->removeTrack(trackCount + 100), DawProjectException);
+            REQUIRE_THROWS_AS(project->renameTrack(trackCount + 100, "Invalid"), std::out_of_range);
+            REQUIRE_THROWS_AS(project->removeTrack(trackCount + 100), std::out_of_range);
         }
     }
 }
