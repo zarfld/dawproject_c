@@ -361,6 +361,16 @@ if(ENABLE_TESTING)
         dawproject_api dawproject_core dawproject_data dawproject_platform Catch2::Catch2WithMain
     )
     catch_discover_tests(test_dawproject_api_coverage TEST_PREFIX dawproject_api_coverage::)
+
+    # Schema Manager Coverage Tests - Comprehensive testing of ExternalSchemaManager (477-line file)
+    add_executable(test_schema_manager_coverage tests/unit/test_schema_manager_coverage.cpp)
+    target_include_directories(test_schema_manager_coverage PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests
+    )
+    target_link_libraries(test_schema_manager_coverage PRIVATE 
+        dawproject_external dawproject_core dawproject_data dawproject_platform Catch2::Catch2WithMain
+    )
+    catch_discover_tests(test_schema_manager_coverage TEST_PREFIX schema_manager_coverage::)
     
     # Comprehensive Data Access Tests - DISABLED - uses direct libzip calls instead of IZIPProcessor abstractions
     # add_executable(test_data_comprehensive tests/unit/test_data_access_comprehensive.cpp)
