@@ -28,6 +28,8 @@ architecturalDecisions:
 
 # ADR-009: External Schema Management Strategy
 
+## Status
+
 **Status**: PROPOSED  
 **Date**: 2025-01-09  
 **Deciders**: Development Team, Architecture Review Board  

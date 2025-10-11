@@ -30,6 +30,8 @@ architecturalDecisions:
 
 # ADR-010: Interoperability Validation Strategy
 
+## Status
+
 **Status**: PROPOSED  
 **Date**: 2025-01-09  
 **Deciders**: Development Team, Architecture Review Board  
