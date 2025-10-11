@@ -332,8 +332,17 @@ if(ENABLE_TESTING)
     )
     catch_discover_tests(test_platform_coverage TEST_PREFIX platform_coverage::)
     
-    # TODO: Re-enable data comprehensive tests after fixing ZIP library issues
-    # # Comprehensive Data Access Tests for Coverage Improvement  
+    # ZIP Processor Coverage Tests - Simple focused testing of ZIPProcessorImpl
+    add_executable(test_zip_processor_simple tests/unit/test_zip_processor_simple.cpp)
+    target_include_directories(test_zip_processor_simple PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests
+    )
+    target_link_libraries(test_zip_processor_simple PRIVATE 
+        dawproject_data dawproject_platform dawproject_core Catch2::Catch2WithMain
+    )
+    catch_discover_tests(test_zip_processor_simple TEST_PREFIX zip_simple::)
+    
+    # Comprehensive Data Access Tests - DISABLED - uses direct libzip calls instead of IZIPProcessor abstractions
     # add_executable(test_data_comprehensive tests/unit/test_data_access_comprehensive.cpp)
     # target_include_directories(test_data_comprehensive PRIVATE
     #     ${CMAKE_CURRENT_SOURCE_DIR}/tests
