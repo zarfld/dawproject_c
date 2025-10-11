@@ -16,6 +16,7 @@
 #include <numeric>     // For std::iota and std::accumulate
 #include <algorithm>   // For std::sort, std::unique
 #include <cstdlib>     // For environment variable functions
+#include <atomic>      // For std::atomic
 #include <thread>
 #include <chrono>
 #include <memory>
@@ -464,8 +465,8 @@ TEST_CASE("Platform Layer - Memory Management", "[platform][memory]") {
     
     SECTION("RAII Memory Management") {
         class TestRAII {
-            std::unique_ptr<int[]> data_;
             size_t size_;
+            std::unique_ptr<int[]> data_;
         public:
             TestRAII(size_t size) : size_(size), data_(std::make_unique<int[]>(size)) {
                 for (size_t i = 0; i < size_; ++i) {
@@ -489,10 +490,10 @@ TEST_CASE("Platform Layer - Memory Management", "[platform][memory]") {
     
     SECTION("Memory Pool Simulation") {
         class SimpleMemoryPool {
-            std::vector<char> pool_;
-            std::vector<bool> allocated_;
             size_t blockSize_;
             size_t numBlocks_;
+            std::vector<char> pool_;
+            std::vector<bool> allocated_;
             
         public:
             SimpleMemoryPool(size_t blockSize, size_t numBlocks) 
