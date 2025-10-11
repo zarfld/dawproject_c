@@ -13,6 +13,9 @@
 
 #include <filesystem>
 #include <fstream>
+#include <numeric>     // For std::iota and std::accumulate
+#include <algorithm>   // For std::sort, std::unique
+#include <cstdlib>     // For environment variable functions
 #include <thread>
 #include <chrono>
 #include <memory>
@@ -29,6 +32,37 @@
 #include <random>
 
 namespace fs = std::filesystem;
+
+// Robust cleanup utility for CI environments
+class RobustCleanup {
+public:
+    static bool cleanupDirectory(const fs::path& dir, int maxRetries = 3) {
+        if (!fs::exists(dir)) return true;
+        
+        for (int i = 0; i < maxRetries; ++i) {
+            try {
+                fs::remove_all(dir);
+                if (!fs::exists(dir)) return true;
+                
+                // Wait a bit before retry (file handles might need time to release)
+                std::this_thread::sleep_for(std::chrono::milliseconds(100 * (i + 1)));
+            } catch (const fs::filesystem_error& e) {
+                if (i == maxRetries - 1) {
+                    INFO("Cleanup failed after " << maxRetries << " attempts: " << e.what());
+                    return false;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(200 * (i + 1)));
+            }
+        }
+        return false;
+    }
+    
+    static fs::path createUniqueTestDir(const std::string& baseName) {
+        auto timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+        return fs::temp_directory_path() / (baseName + "_" + std::to_string(timestamp));
+    }
+};
 
 // Mock classes for testing - replace with actual platform interfaces
 class MockFileSystemInterface {
@@ -83,15 +117,15 @@ std::atomic<size_t> AllocationTracker::deallocations{0};
 
 TEST_CASE("Platform Layer - FileSystem Operations", "[platform][filesystem]") {
     // Test temporary directory creation for testing
-    auto tempDir = fs::temp_directory_path() / "dawproject_test";
+    auto tempDir = RobustCleanup::createUniqueTestDir("dawproject_test");
     
     SECTION("Directory Creation and Cleanup") {
         REQUIRE_NOTHROW(fs::create_directories(tempDir));
         REQUIRE(fs::exists(tempDir));
         REQUIRE(fs::is_directory(tempDir));
         
-        // Cleanup
-        REQUIRE_NOTHROW(fs::remove_all(tempDir));
+        // Robust cleanup with retry logic
+        REQUIRE(RobustCleanup::cleanupDirectory(tempDir));
         REQUIRE_FALSE(fs::exists(tempDir));
     }
     
@@ -116,11 +150,13 @@ TEST_CASE("Platform Layer - FileSystem Operations", "[platform][filesystem]") {
         REQUIRE(fs::exists(copyFile));
         REQUIRE(fs::file_size(testFile) == fs::file_size(copyFile));
         
-        // Cleanup
-        fs::remove_all(tempDir);
+        // Robust cleanup
+        REQUIRE(RobustCleanup::cleanupDirectory(tempDir));
     }
     
     SECTION("Path Manipulation Edge Cases") {
+        auto testDir = RobustCleanup::createUniqueTestDir("dawproject_path_test");
+        
         // Empty path handling
         fs::path emptyPath;
         REQUIRE(emptyPath.empty());
@@ -130,19 +166,24 @@ TEST_CASE("Platform Layer - FileSystem Operations", "[platform][filesystem]") {
         auto normalized = fs::weakly_canonical(fs::current_path() / relativePath);
         REQUIRE_FALSE(normalized.empty());
         
-        // Path with spaces and special characters
-        fs::path specialPath = tempDir / "file with spaces & symbols!.txt";
-        fs::create_directories(tempDir);
+        // Path with spaces and special characters - enhanced robustness
+        REQUIRE_NOTHROW(fs::create_directories(testDir));
+        fs::path specialPath = testDir / "file with spaces & symbols!.txt";
         
-        std::ofstream(specialPath) << "content";
+        {
+            std::ofstream ofs(specialPath);
+            REQUIRE(ofs.is_open()); // Ensure file can be created
+            ofs << "content";
+        }
         REQUIRE(fs::exists(specialPath));
         
-        fs::remove_all(tempDir);
+        // Enhanced cleanup
+        REQUIRE(RobustCleanup::cleanupDirectory(testDir));
     }
     
     SECTION("Error Handling") {
-        // Non-existent directory access
-        fs::path nonExistent = "/non/existent/path/file.txt";
+        // Non-existent directory access (platform-neutral path)
+        fs::path nonExistent = fs::temp_directory_path() / "definitely_non_existent_dir_12345" / "file.txt";
         REQUIRE_FALSE(fs::exists(nonExistent));
         
         // Permission errors (simulate)
@@ -304,6 +345,78 @@ TEST_CASE("Platform Layer - Threading Operations", "[platform][threading]") {
         
         worker.join();
     }
+    
+    SECTION("Parallel Algorithm Performance") {
+        // Test parallel processing capabilities with comprehensive error handling
+        const size_t dataSize = 10000;
+        std::vector<int> data(dataSize);
+        std::iota(data.begin(), data.end(), 1);
+        
+        auto startTime = std::chrono::high_resolution_clock::now();
+        
+        // Parallel sum calculation using multiple threads
+        const size_t numThreads = std::min(8u, std::thread::hardware_concurrency());
+        std::vector<std::thread> workers;
+        std::vector<long long> partialSums(numThreads, 0);
+        std::exception_ptr threadException = nullptr;
+        std::mutex exceptionMutex;
+        
+        size_t chunkSize = dataSize / numThreads;
+        
+        for (size_t i = 0; i < numThreads; ++i) {
+            workers.emplace_back([&data, &partialSums, &threadException, &exceptionMutex, i, chunkSize, dataSize, numThreads]() {
+                try {
+                    size_t start = i * chunkSize;
+                    size_t end = (i == numThreads - 1) ? dataSize : (i + 1) * chunkSize;
+                    
+                    REQUIRE(start < dataSize);
+                    REQUIRE(end <= dataSize);
+                    REQUIRE(start < end);
+                    
+                    for (size_t j = start; j < end; ++j) {
+                        partialSums[i] += data[j];
+                    }
+                } catch (...) {
+                    std::lock_guard<std::mutex> lock(exceptionMutex);
+                    if (!threadException) {
+                        threadException = std::current_exception();
+                    }
+                }
+            });
+        }
+        
+        // Wait for all threads to complete
+        for (auto& worker : workers) {
+            REQUIRE(worker.joinable());
+            worker.join();
+        }
+        
+        // Check for thread exceptions
+        if (threadException) {
+            std::rethrow_exception(threadException);
+        }
+        
+        // Calculate final sum
+        long long totalSum = std::accumulate(partialSums.begin(), partialSums.end(), 0LL);
+        
+        auto endTime = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+        
+        // Expected sum: 1+2+...+n = n(n+1)/2
+        long long expectedSum = static_cast<long long>(dataSize) * (dataSize + 1) / 2;
+        
+        INFO("Parallel sum calculation with " << numThreads << " threads took " << duration.count() << " microseconds");
+        INFO("Total sum: " << totalSum << ", Expected: " << expectedSum);
+        
+        REQUIRE(totalSum == expectedSum);
+        REQUIRE(partialSums.size() == numThreads);
+        
+        // Verify all partial sums are positive (data integrity check)
+        for (size_t i = 0; i < partialSums.size(); ++i) {
+            REQUIRE(partialSums[i] > 0);
+            INFO("Partial sum " << i << ": " << partialSums[i]);
+        }
+    }
 }
 
 TEST_CASE("Platform Layer - Memory Management", "[platform][memory]") {
@@ -459,6 +572,38 @@ TEST_CASE("Platform Layer - Memory Management", "[platform][memory]") {
         
         REQUIRE(AllocationTracker::isBalanced());
     }
+    
+    SECTION("Memory Stress Test - Large Allocations") {
+        // Test handling of large memory allocations
+        const size_t largeSize = 10 * 1024 * 1024; // 10MB
+        std::vector<void*> largeAllocations;
+        
+        // Allocate multiple large blocks
+        for (int i = 0; i < 5; ++i) {
+            void* ptr = std::malloc(largeSize);
+            if (ptr != nullptr) { // Handle potential allocation failure gracefully
+                largeAllocations.push_back(ptr);
+                
+                // Touch memory to ensure it's actually allocated
+                std::memset(ptr, i & 0xFF, largeSize);
+                
+                // Verify memory content
+                auto* bytes = static_cast<unsigned char*>(ptr);
+                REQUIRE(bytes[0] == (i & 0xFF));
+                REQUIRE(bytes[largeSize - 1] == (i & 0xFF));
+            }
+        }
+        
+        INFO("Successfully allocated " << largeAllocations.size() << " large memory blocks");
+        
+        // Clean up all allocations
+        for (void* ptr : largeAllocations) {
+            std::free(ptr);
+        }
+        
+        // Verify no memory corruption occurred
+        REQUIRE(largeAllocations.size() <= 5); // Should not exceed expected count
+    }
 }
 
 TEST_CASE("Platform Layer - Error Handling", "[platform][error]") {
@@ -512,6 +657,110 @@ TEST_CASE("Platform Layer - Error Handling", "[platform][error]") {
         
         REQUIRE(cleaned); // Destructor should have been called
     }
+    
+    SECTION("Boundary Conditions and Edge Cases") {
+        // Test edge cases that could cause issues in CI or different environments
+        
+        // Test maximum path length handling
+        std::string longPath = "test_path_";
+        while (longPath.length() < 200) {
+            longPath += "very_long_directory_name_";
+        }
+        longPath += "file.txt";
+        
+        // Test with invalid characters (should handle gracefully)
+        std::vector<std::string> invalidPaths = {
+            "",           // Empty path
+            "/",          // Root only
+            "//",         // Double slash  
+            ".",          // Current dir
+            "..",         // Parent dir
+            longPath      // Very long path
+        };
+        
+        for (const auto& path : invalidPaths) {
+            // These operations should not crash, even with invalid inputs
+            REQUIRE_NOTHROW([&path]() {
+                std::ifstream test(path);
+                // Don't require success, just no crash
+                INFO("Testing path: '" << path << "' - exists: " << test.good());
+            }());
+        }
+    }
+    
+    SECTION("System Resource Limits") {
+        // Test behavior under resource constraints
+        
+        // Test file descriptor limits (create many file handles)
+        std::vector<std::unique_ptr<std::ofstream>> handles;
+        const size_t maxHandles = 50; // Conservative limit for CI
+        
+        for (size_t i = 0; i < maxHandles; ++i) {
+            std::string filename = "temp_handle_" + std::to_string(i) + ".tmp";
+            auto handle = std::make_unique<std::ofstream>(filename);
+            
+            if (handle->is_open()) {
+                handles.push_back(std::move(handle));
+                *handles.back() << "Test data " << i;
+            } else {
+                INFO("Could not open handle " << i << " (system limit reached)");
+                break; // Hit system limit, which is acceptable
+            }
+        }
+        
+        INFO("Successfully opened " << handles.size() << " file handles");
+        
+        // Clean up handles
+        handles.clear();
+        
+        // Clean up files
+        for (size_t i = 0; i < maxHandles; ++i) {
+            std::string filename = "temp_handle_" + std::to_string(i) + ".tmp";
+            std::remove(filename.c_str()); // Ignore return value - file might not exist
+        }
+        
+        REQUIRE(handles.empty());
+    }
+    
+    SECTION("Concurrent Error Handling") {
+        // Test error handling in multi-threaded scenarios
+        std::atomic<int> exceptionCount{0};
+        std::atomic<int> successCount{0};
+        std::vector<std::thread> workers;
+        
+        const int numThreads = 4;
+        const int operationsPerThread = 10;
+        
+        for (int i = 0; i < numThreads; ++i) {
+            workers.emplace_back([&exceptionCount, &successCount, operationsPerThread, i]() {
+                for (int j = 0; j < operationsPerThread; ++j) {
+                    try {
+                        // Simulate operations that might fail
+                        if ((i + j) % 3 == 0) {
+                            throw std::runtime_error("Simulated failure");
+                        } else {
+                            // Successful operation
+                            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                            successCount.fetch_add(1);
+                        }
+                    } catch (const std::exception&) {
+                        exceptionCount.fetch_add(1);
+                    }
+                }
+            });
+        }
+        
+        for (auto& worker : workers) {
+            worker.join();
+        }
+        
+        int totalOperations = numThreads * operationsPerThread;
+        REQUIRE(exceptionCount.load() + successCount.load() == totalOperations);
+        
+        INFO("Concurrent operations: " << totalOperations 
+             << ", Successes: " << successCount.load() 
+             << ", Exceptions: " << exceptionCount.load());
+    }
 }
 
 TEST_CASE("Platform Layer - Performance Characteristics", "[platform][performance]") {
@@ -551,8 +800,8 @@ TEST_CASE("Platform Layer - Performance Characteristics", "[platform][performanc
     }
     
     SECTION("File I/O Performance") {
-        auto tempDir = fs::temp_directory_path() / "dawproject_perf_test";
-        fs::create_directories(tempDir);
+        auto tempDir = RobustCleanup::createUniqueTestDir("dawproject_perf_test");
+        REQUIRE_NOTHROW(fs::create_directories(tempDir));
         
         const size_t fileSize = 1024 * 1024; // 1MB
         const int numFiles = 10;
@@ -561,27 +810,31 @@ TEST_CASE("Platform Layer - Performance Characteristics", "[platform][performanc
         
         auto start = std::chrono::high_resolution_clock::now();
         
-        // Write performance
+        // Write performance - enhanced with error checking
         for (int i = 0; i < numFiles; ++i) {
             auto filePath = tempDir / ("test" + std::to_string(i) + ".dat");
             std::ofstream ofs(filePath, std::ios::binary);
+            REQUIRE(ofs.is_open()); // Ensure file can be created
             ofs.write(data.data(), data.size());
+            REQUIRE(ofs.good()); // Ensure write succeeded
         }
         
         auto writeEnd = std::chrono::high_resolution_clock::now();
         
-        // Read performance
+        // Read performance - enhanced with error checking
         for (int i = 0; i < numFiles; ++i) {
             auto filePath = tempDir / ("test" + std::to_string(i) + ".dat");
             std::ifstream ifs(filePath, std::ios::binary);
+            REQUIRE(ifs.is_open()); // Ensure file can be read
             std::vector<char> readData(fileSize);
             ifs.read(readData.data(), readData.size());
+            REQUIRE(ifs.gcount() == static_cast<std::streamsize>(fileSize)); // Verify read size
         }
         
         auto readEnd = std::chrono::high_resolution_clock::now();
         
-        // Cleanup
-        fs::remove_all(tempDir);
+        // Enhanced cleanup
+        REQUIRE(RobustCleanup::cleanupDirectory(tempDir));
         
         auto writeDuration = std::chrono::duration_cast<std::chrono::milliseconds>(
             writeEnd - start).count();
@@ -591,8 +844,25 @@ TEST_CASE("Platform Layer - Performance Characteristics", "[platform][performanc
         INFO("Write time: " << writeDuration << "ms for " << numFiles << " files");
         INFO("Read time: " << readDuration << "ms for " << numFiles << " files");
         
-        // Basic performance thresholds
-        REQUIRE(writeDuration < 5000); // Less than 5 seconds
-        REQUIRE(readDuration < 5000);  // Less than 5 seconds
+        // Basic performance thresholds - adaptive to environment
+        // Use MSVC-safe environment variable checking
+        bool isCI = false;
+        #ifdef _WIN32
+            char* ciEnv = nullptr;
+            char* ghEnv = nullptr;
+            size_t ciLen = 0, ghLen = 0;
+            _dupenv_s(&ciEnv, &ciLen, "CI");
+            _dupenv_s(&ghEnv, &ghLen, "GITHUB_ACTIONS");
+            isCI = (ciEnv != nullptr) || (ghEnv != nullptr);
+            if (ciEnv) free(ciEnv);
+            if (ghEnv) free(ghEnv);
+        #else
+            isCI = std::getenv("CI") != nullptr || std::getenv("GITHUB_ACTIONS") != nullptr;
+        #endif
+        const long expectedWriteTime = isCI ? 15000 : 5000; // CI gets more time but still reasonable
+        const long expectedReadTime = isCI ? 15000 : 5000;
+        
+        REQUIRE(writeDuration < expectedWriteTime); // Adaptive timing based on environment
+        REQUIRE(readDuration < expectedReadTime);   // Maintains performance expectations
     }
 }

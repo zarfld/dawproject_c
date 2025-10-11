@@ -1,7 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>
-#include "platform/filesystem_impl.h"
-#include "platform/platform_factory.h"
+#include <dawproject/platform/factory.h>
+#include <dawproject/platform/interfaces.h>
 #include <filesystem>
 #include <fstream>
 #include <thread>
