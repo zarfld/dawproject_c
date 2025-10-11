@@ -311,6 +311,27 @@ if(ENABLE_TESTING)
     )
     target_link_libraries(dawproject_api_tests PRIVATE dawproject_api Catch2::Catch2WithMain)
     catch_discover_tests(dawproject_api_tests TEST_PREFIX dawproject_api::)
+    
+    # Comprehensive Platform Tests for Coverage Improvement
+    add_executable(test_platform_comprehensive tests/unit/test_platform_comprehensive.cpp)
+    target_include_directories(test_platform_comprehensive PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests
+    )
+    target_link_libraries(test_platform_comprehensive PRIVATE 
+        dawproject_platform dawproject_core Catch2::Catch2WithMain
+    )
+    catch_discover_tests(test_platform_comprehensive TEST_PREFIX platform_comprehensive::)
+    
+    # TODO: Re-enable data comprehensive tests after fixing ZIP library issues
+    # # Comprehensive Data Access Tests for Coverage Improvement  
+    # add_executable(test_data_comprehensive tests/unit/test_data_access_comprehensive.cpp)
+    # target_include_directories(test_data_comprehensive PRIVATE
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/tests
+    # )
+    # target_link_libraries(test_data_comprehensive PRIVATE 
+    #     dawproject_data dawproject_platform dawproject_core pugixml Catch2::Catch2WithMain
+    # )
+    # catch_discover_tests(test_data_comprehensive TEST_PREFIX data_comprehensive::)
 endif()
 
 # Performance testing executable (for refactoring verification)

@@ -18,6 +18,14 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <functional>
+#include <mutex>
+#include <queue>
+#include <condition_variable>
+
+#ifdef _MSC_VER
+#include <malloc.h>  // For _aligned_malloc/_aligned_free
+#endif
 #include <random>
 
 namespace fs = std::filesystem;
@@ -46,6 +54,32 @@ public:
     virtual void deallocate(void* ptr) = 0;
     virtual size_t getUsage() const = 0;
 };
+
+// Global AllocationTracker for memory leak detection simulation
+struct AllocationTracker {
+    static std::atomic<size_t> allocations;
+    static std::atomic<size_t> deallocations;
+    
+    static void* allocate(size_t size) {
+        allocations.fetch_add(1);
+        return std::malloc(size);
+    }
+    
+    static void deallocate(void* ptr) {
+        if (ptr) {
+            deallocations.fetch_add(1);
+            std::free(ptr);
+        }
+    }
+    
+    static bool isBalanced() {
+        return allocations.load() == deallocations.load();
+    }
+};
+
+// Static member definitions for AllocationTracker
+std::atomic<size_t> AllocationTracker::allocations{0};
+std::atomic<size_t> AllocationTracker::deallocations{0};
 
 TEST_CASE("Platform Layer - FileSystem Operations", "[platform][filesystem]") {
     // Test temporary directory creation for testing
@@ -296,13 +330,23 @@ TEST_CASE("Platform Layer - Memory Management", "[platform][memory]") {
         const size_t alignment = 64;  // 64-byte alignment
         const size_t size = 1024;
         
-        void* ptr = std::aligned_alloc(alignment, size);
+        // Platform-specific aligned allocation
+        void* ptr = nullptr;
+#ifdef _MSC_VER
+        ptr = _aligned_malloc(size, alignment);
+#else
+        ptr = std::aligned_alloc(alignment, size);
+#endif
         REQUIRE(ptr != nullptr);
         
         // Check alignment
         REQUIRE(reinterpret_cast<std::uintptr_t>(ptr) % alignment == 0);
         
+#ifdef _MSC_VER
+        _aligned_free(ptr);
+#else
         std::free(ptr);
+#endif
     }
     
     SECTION("RAII Memory Management") {
@@ -395,27 +439,6 @@ TEST_CASE("Platform Layer - Memory Management", "[platform][memory]") {
     }
     
     SECTION("Memory Leak Detection Simulation") {
-        struct AllocationTracker {
-            static std::atomic<size_t> allocations;
-            static std::atomic<size_t> deallocations;
-            
-            static void* allocate(size_t size) {
-                allocations.fetch_add(1);
-                return std::malloc(size);
-            }
-            
-            static void deallocate(void* ptr) {
-                if (ptr) {
-                    deallocations.fetch_add(1);
-                    std::free(ptr);
-                }
-            }
-            
-            static bool isBalanced() {
-                return allocations.load() == deallocations.load();
-            }
-        };
-        
         AllocationTracker::allocations.store(0);
         AllocationTracker::deallocations.store(0);
         
@@ -437,10 +460,6 @@ TEST_CASE("Platform Layer - Memory Management", "[platform][memory]") {
         REQUIRE(AllocationTracker::isBalanced());
     }
 }
-
-// Static member definitions for AllocationTracker
-std::atomic<size_t> AllocationTracker::allocations{0};
-std::atomic<size_t> AllocationTracker::deallocations{0};
 
 TEST_CASE("Platform Layer - Error Handling", "[platform][error]") {
     

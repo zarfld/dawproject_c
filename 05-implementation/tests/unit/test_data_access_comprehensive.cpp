@@ -13,7 +13,6 @@
 #include <catch2/generators/catch_generators.hpp>
 
 #include <pugixml.hpp>
-#include <zip.h>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
