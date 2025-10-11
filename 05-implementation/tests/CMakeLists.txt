@@ -23,8 +23,7 @@ catch_discover_tests(test_platform)
 
 # Comprehensive Platform Layer Tests for Coverage Improvement
 add_executable(test_platform_comprehensive
-    unit/platform/test_platform_comprehensive.cpp
-    unit/platform/test_platform_threading_memory.cpp
+    unit/test_platform_comprehensive.cpp
 )
 
 target_link_libraries(test_platform_comprehensive
@@ -39,31 +38,33 @@ target_include_directories(test_platform_comprehensive PRIVATE
 
 catch_discover_tests(test_platform_comprehensive)
 
-# Test executable for Data Access Layer (DES-C-003) - Using existing tests
-add_executable(test_data_existing
+# Test executable for Data Access Layer (DES-C-003) - Existing tests
+add_executable(test_data
     unit/test_data_access_red.cpp
 )
 
-target_link_libraries(test_data_existing
+target_link_libraries(test_data
     PRIVATE 
         dawproject_data
         Catch2::Catch2WithMain
 )
 
-target_include_directories(test_data_existing PRIVATE
+target_include_directories(test_data PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
 
-catch_discover_tests(test_data_existing)
+catch_discover_tests(test_data)
 
 # Comprehensive Data Access Tests for Coverage Improvement
 add_executable(test_data_comprehensive
-    unit/data/test_data_access_comprehensive.cpp
+    unit/test_data_access_comprehensive.cpp
 )
 
 target_link_libraries(test_data_comprehensive
     PRIVATE 
         dawproject_data
+        pugixml
+        PkgConfig::LIBZIP
         Catch2::Catch2WithMain
 )
 
@@ -73,8 +74,8 @@ target_include_directories(test_data_comprehensive PRIVATE
 
 catch_discover_tests(test_data_comprehensive)
 
-# Test executable for Business Logic Layer (DES-C-002) - Mock implementation
-add_executable(test_business_mock
+# Test executable for Business Logic Layer (DES-C-002) - Existing tests
+add_executable(test_business
     unit/test_smoke_coverage.cpp
 )
 
@@ -86,14 +87,16 @@ target_link_libraries(test_business
 
 # Comprehensive Business Logic and Integration Tests
 add_executable(test_business_integration
-    integration/test_business_integration.cpp
+    unit/test_business_integration.cpp
 )
 
 target_link_libraries(test_business_integration
     PRIVATE 
         dawproject_business
         dawproject_data
-        dawproject_external_validation
+        dawproject_platform
+        pugixml
+        PkgConfig::LIBZIP
         Catch2::Catch2WithMain
 )
 
