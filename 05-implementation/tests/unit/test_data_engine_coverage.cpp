@@ -171,7 +171,8 @@ TEST_CASE_METHOD(DataAccessEngineFixture, "loadTracks - Success Cases", "[engine
         REQUIRE(result.success);
         
         const auto& tracks = result.value;
-        // Validate container is accessible (size() call validates the container)
+        // Validate container is accessible - tracks can be empty or populated
+        (void)tracks.size(); // Explicitly use variable to avoid unused variable warning
     }
 }
 
@@ -214,7 +215,8 @@ TEST_CASE_METHOD(DataAccessEngineFixture, "loadClips - Success Cases", "[engine]
         REQUIRE(result.success);
         
         const auto& clips = result.value;
-        // Validate container is accessible (size() call validates the container)
+        // Validate container is accessible - clips can be empty or populated
+        (void)clips.size(); // Explicitly use variable to avoid unused variable warning
     }
 }
 
