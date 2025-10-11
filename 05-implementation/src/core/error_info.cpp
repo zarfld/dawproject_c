@@ -37,11 +37,13 @@ ErrorInfo ErrorInfo::networkError(
     error.url = url;
     error.operation = "network_operation";
     
+    // Always provide basic network troubleshooting steps
+    error.suggestedActions.push_back("Check network connectivity");
     if (!url.empty()) {
-        error.suggestedActions.push_back("Check network connectivity");
         error.suggestedActions.push_back("Verify URL is accessible: " + url);
-        error.suggestedActions.push_back("Check firewall and proxy settings");
     }
+    error.suggestedActions.push_back("Check firewall and proxy settings");
+    error.suggestedActions.push_back("Retry the operation after a brief delay");
     
     error.technicalActions.push_back("Review network logs");
     error.technicalActions.push_back("Check DNS resolution");
@@ -81,13 +83,19 @@ ErrorInfo ErrorInfo::validationError(
     ErrorInfo error(Category::ValidationError, Severity::Error,
                    generateErrorCode("VAL"), message);
     error.details = details;
-    error.filePath = filePath;
+    if (!filePath.empty()) {
+        error.filePath = filePath;
+    }
     error.operation = "validation";
     
     if (!filePath.empty()) {
         error.suggestedActions.push_back("Check file format: " + filePath.string());
         error.suggestedActions.push_back("Validate file against schema");
         error.suggestedActions.push_back("Verify file is not corrupted");
+    } else {
+        error.suggestedActions.push_back("Check validation rules");
+        error.suggestedActions.push_back("Verify input data format");
+        error.suggestedActions.push_back("Review validation criteria");
     }
     
     error.technicalActions.push_back("Review validation rules");

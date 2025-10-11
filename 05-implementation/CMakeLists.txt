@@ -106,6 +106,19 @@ target_link_libraries(dawproject_core
     PRIVATE ${CMAKE_THREAD_LIBS_INIT}
 )
 
+# External Library (DES-C-EXT-001) - External Schema Manager and HTTP Client
+add_library(dawproject_external STATIC
+    src/external/external_schema_manager.cpp
+)
+target_include_directories(dawproject_external PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+target_link_libraries(dawproject_external
+    PUBLIC dawproject_core dawproject_common
+    PRIVATE ${CMAKE_THREAD_LIBS_INIT}
+)
+
 # Platform Abstraction Layer (DES-C-004) - Minimal for TDD
 add_library(dawproject_platform STATIC)
 target_sources(dawproject_platform
@@ -140,7 +153,7 @@ target_include_directories(dawproject_data
         $<INSTALL_INTERFACE:include>
 )
 target_link_libraries(dawproject_data
-    PUBLIC dawproject_core dawproject_platform dawproject_common
+    PUBLIC dawproject_external dawproject_core dawproject_platform dawproject_common
     PRIVATE pugixml
 )
 
@@ -160,7 +173,7 @@ target_link_libraries(dawproject_api
 )
 
 # Install rules (needed for packaging and staging deploy)
-install(TARGETS dawproject_common dawproject_core dawproject_platform dawproject_data dawproject_api
+install(TARGETS dawproject_common dawproject_core dawproject_external dawproject_platform dawproject_data dawproject_api
     EXPORT dawprojectTargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
@@ -216,6 +229,18 @@ if(ENABLE_TESTING)
         PRIVATE dawproject_core Catch2::Catch2WithMain
     )
     catch_discover_tests(test_core_error_info TEST_PREFIX core::)
+    
+    # External library unit tests (DES-C-EXT-001)
+    add_executable(test_external_schema_manager
+        tests/unit/external/test_external_schema_manager.cpp
+    )
+    target_include_directories(test_external_schema_manager PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests
+    )
+    target_link_libraries(test_external_schema_manager
+        PRIVATE dawproject_external Catch2::Catch2WithMain
+    )
+    catch_discover_tests(test_external_schema_manager TEST_PREFIX external::)
 
     # RED phase test for data access layer
     add_executable(test_data_red
@@ -240,7 +265,7 @@ if(ENABLE_TESTING)
     # Custom test target for TDD workflow
     add_custom_target(tdd
         COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure --parallel 4
-        DEPENDS test_core_result test_core_error_info test_data_red
+        DEPENDS test_core_result test_core_error_info test_external_schema_manager test_data_red
         COMMENT "Running TDD test suite"
     )
 

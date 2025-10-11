@@ -213,7 +213,7 @@ TEST_CASE("Result<T> - Copy and Move Semantics", "[result][core]") {
         auto copy = original;
         
         REQUIRE(copy.isError());
-        REQUIRE(copy.error().message == "Missing lib");
+        REQUIRE(copy.error().message == "Missing or incompatible dependency: Missing lib");
         REQUIRE(original.isError());
     }
 }
