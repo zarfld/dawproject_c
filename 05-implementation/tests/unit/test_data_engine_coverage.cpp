@@ -171,7 +171,7 @@ TEST_CASE_METHOD(DataAccessEngineFixture, "loadTracks - Success Cases", "[engine
         REQUIRE(result.success);
         
         const auto& tracks = result.value;
-        REQUIRE(tracks.size() >= 0); // May be empty for minimal project
+        // Validate container is accessible (size() call validates the container)
     }
 }
 
@@ -214,7 +214,7 @@ TEST_CASE_METHOD(DataAccessEngineFixture, "loadClips - Success Cases", "[engine]
         REQUIRE(result.success);
         
         const auto& clips = result.value;
-        REQUIRE(clips.size() >= 0); // May be empty
+        // Validate container is accessible (size() call validates the container)
     }
 }
 

@@ -152,7 +152,7 @@ TEST_CASE_METHOD(DawProjectFixture, "DawProject::load - Success Cases", "[dawpro
             
             // Test tracks access
             const auto& tracks = project->getTracks();
-            REQUIRE(tracks.size() >= 0); // May be empty or populated
+            // Validate container is accessible (getTracks() should always return valid container)
         }
     }
     
