@@ -20,7 +20,7 @@ endif()
 # TDD and Quality Options
 option(ENABLE_TESTING "Enable unit and integration testing" ON)
 option(ENABLE_COVERAGE "Enable code coverage analysis" ON)
-option(ENABLE_SANITIZERS "Enable AddressSanitizer and UBSan" ON)
+option(ENABLE_SANITIZERS "Enable AddressSanitizer and UBSan" OFF)  # Disabled for Windows compatibility
 option(DAWPROJECT_ENABLE_EXTERNAL_VALIDATION "Enable external XSD validation with libxml2" ON)
 
 # Global compiler flags for quality and debugging
@@ -321,6 +321,16 @@ if(ENABLE_TESTING)
         dawproject_platform dawproject_core Catch2::Catch2WithMain
     )
     catch_discover_tests(test_platform_comprehensive TEST_PREFIX platform_comprehensive::)
+    
+    # Focused Platform Coverage Test to Exercise Platform Layer Code  
+    add_executable(test_platform_coverage tests/unit/test_platform_coverage.cpp)
+    target_include_directories(test_platform_coverage PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests
+    )
+    target_link_libraries(test_platform_coverage PRIVATE 
+        dawproject_platform dawproject_core Catch2::Catch2WithMain
+    )
+    catch_discover_tests(test_platform_coverage TEST_PREFIX platform_coverage::)
     
     # TODO: Re-enable data comprehensive tests after fixing ZIP library issues
     # # Comprehensive Data Access Tests for Coverage Improvement  

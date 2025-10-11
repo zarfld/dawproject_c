@@ -16,25 +16,25 @@ TEST_CASE("Platform Layer Coverage - Factory Operations", "[platform][coverage]"
     
     SECTION("PlatformFactory getInstance") {
         // Test factory singleton access
-        auto factory = dawproject::platform::PlatformFactory::getInstance();
-        REQUIRE(factory != nullptr);
+        auto& factory = dawproject::platform::PlatformFactory::getInstance();
+        // Note: factory is a reference, can't compare to nullptr
         
         // Test getting same instance
-        auto factory2 = dawproject::platform::PlatformFactory::getInstance();
-        REQUIRE(factory == factory2);
+        auto& factory2 = dawproject::platform::PlatformFactory::getInstance();
+        REQUIRE(&factory == &factory2);  // Compare addresses
     }
     
     SECTION("SystemInfo Operations") {
-        auto factory = dawproject::platform::PlatformFactory::getInstance();
+        auto& factory = dawproject::platform::PlatformFactory::getInstance();
         
         // Test getSystemInfo method
-        auto systemInfo = factory->getSystemInfo();
+        auto systemInfo = factory.getSystemInfo();
         
         // Basic validation - these methods should not crash
         REQUIRE_NOTHROW([&]() {
-            auto platform = factory->getCurrentPlatform();
-            auto arch = factory->getCurrentArchitecture();
-            auto littleEndian = factory->isLittleEndian();
+            auto platform = factory.getCurrentPlatform();
+            auto arch = factory.getCurrentArchitecture();
+            auto littleEndian = factory.isLittleEndian();
             
             // Basic smoke tests
             INFO("Platform: " + std::to_string(static_cast<int>(platform)));
@@ -44,17 +44,17 @@ TEST_CASE("Platform Layer Coverage - Factory Operations", "[platform][coverage]"
     }
     
     SECTION("Environment Variable Operations") {
-        auto factory = dawproject::platform::PlatformFactory::getInstance();
+        auto& factory = dawproject::platform::PlatformFactory::getInstance();
         
         // Test environment variable access
         REQUIRE_NOTHROW([&]() {
             // Try to get a common environment variable
-            std::string pathVar = factory->getEnvironmentVariable("PATH");
+            std::string pathVar = factory.getEnvironmentVariable("PATH");
             INFO("PATH variable length: " + std::to_string(pathVar.length()));
             
             // Test setting and getting a test variable
-            factory->setEnvironmentVariable("DAWPROJECT_TEST", "test_value");
-            std::string testValue = factory->getEnvironmentVariable("DAWPROJECT_TEST");
+            factory.setEnvironmentVariable("DAWPROJECT_TEST", "test_value");
+            std::string testValue = factory.getEnvironmentVariable("DAWPROJECT_TEST");
             INFO("Test env var: " + testValue);
         }());
     }
@@ -63,13 +63,13 @@ TEST_CASE("Platform Layer Coverage - Factory Operations", "[platform][coverage]"
 TEST_CASE("Platform Layer Coverage - Component Creation", "[platform][coverage]") {
     
     SECTION("Component Factory Methods") {
-        auto factory = dawproject::platform::PlatformFactory::getInstance();
+        auto& factory = dawproject::platform::PlatformFactory::getInstance();
         
         // Test component creation methods - they should not crash
         REQUIRE_NOTHROW([&]() {
             // Try to create filesystem component
             try {
-                auto filesystem = factory->createFileSystem();
+                auto filesystem = factory.createFileSystem();
                 if (filesystem) {
                     INFO("FileSystem component created successfully");
                 }
@@ -79,7 +79,7 @@ TEST_CASE("Platform Layer Coverage - Component Creation", "[platform][coverage]"
             
             // Try to create threading component
             try {
-                auto threading = factory->createThreading();
+                auto threading = factory.createThreading();
                 if (threading) {
                     INFO("Threading component created successfully");
                 }
@@ -89,7 +89,7 @@ TEST_CASE("Platform Layer Coverage - Component Creation", "[platform][coverage]"
             
             // Try to create memory manager component
             try {
-                auto memory = factory->createMemoryManager();
+                auto memory = factory.createMemoryManager();
                 if (memory) {
                     INFO("Memory manager component created successfully");
                 }

@@ -39,6 +39,7 @@ target_include_directories(test_platform_comprehensive PRIVATE
 catch_discover_tests(test_platform_comprehensive)
 
 # Focused platform coverage test
+message(STATUS "Adding test_platform_coverage executable")
 add_executable(test_platform_coverage
     unit/test_platform_coverage.cpp
 )
