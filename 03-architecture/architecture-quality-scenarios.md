@@ -1,15 +1,15 @@
 ---
 specType: architecture
-standard: 42010
-phase: 03-architecture
-version: 1.0.0
-author: Architecture Team
+standard: "42010"
+phase: "03-architecture"
+version: "1.0.0"
+author: "Architecture Team"
 date: "2025-10-03"
-status: approved
+status: "approved"
 traceability:
   requirements:
-    - REQ-F-001
-    - REQ-NF-001
+    - "REQ-F-001"
+    - "REQ-NF-001"
 ---
 
 # Architecture Quality Attribute Scenarios
