@@ -93,6 +93,19 @@ target_compile_definitions(dawproject_common INTERFACE
     _UNICODE
 )
 
+# Core Library (DES-I-CORE-001) - Result<T> pattern and ErrorInfo
+add_library(dawproject_core STATIC
+    src/core/error_info.cpp
+)
+target_include_directories(dawproject_core PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+target_link_libraries(dawproject_core 
+    PUBLIC dawproject_common
+    PRIVATE ${CMAKE_THREAD_LIBS_INIT}
+)
+
 # Platform Abstraction Layer (DES-C-004) - Minimal for TDD
 add_library(dawproject_platform STATIC)
 target_sources(dawproject_platform
@@ -127,7 +140,7 @@ target_include_directories(dawproject_data
         $<INSTALL_INTERFACE:include>
 )
 target_link_libraries(dawproject_data
-    PUBLIC dawproject_platform dawproject_common
+    PUBLIC dawproject_core dawproject_platform dawproject_common
     PRIVATE pugixml
 )
 
@@ -147,7 +160,7 @@ target_link_libraries(dawproject_api
 )
 
 # Install rules (needed for packaging and staging deploy)
-install(TARGETS dawproject_common dawproject_platform dawproject_data dawproject_api
+install(TARGETS dawproject_common dawproject_core dawproject_platform dawproject_data dawproject_api
     EXPORT dawprojectTargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
@@ -181,6 +194,29 @@ if(ENABLE_TESTING)
         endforeach()
     endif()
     
+    # Core library unit tests (DES-I-CORE-001)
+    add_executable(test_core_result
+        tests/unit/core/test_result.cpp
+    )
+    target_include_directories(test_core_result PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests
+    )
+    target_link_libraries(test_core_result
+        PRIVATE dawproject_core Catch2::Catch2WithMain
+    )
+    catch_discover_tests(test_core_result TEST_PREFIX core::)
+    
+    add_executable(test_core_error_info
+        tests/unit/core/test_error_info.cpp
+    )
+    target_include_directories(test_core_error_info PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests
+    )
+    target_link_libraries(test_core_error_info
+        PRIVATE dawproject_core Catch2::Catch2WithMain
+    )
+    catch_discover_tests(test_core_error_info TEST_PREFIX core::)
+
     # RED phase test for data access layer
     add_executable(test_data_red
         tests/unit/test_data_access_red.cpp
@@ -204,7 +240,7 @@ if(ENABLE_TESTING)
     # Custom test target for TDD workflow
     add_custom_target(tdd
         COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure --parallel 4
-        DEPENDS test_data_red
+        DEPENDS test_core_result test_core_error_info test_data_red
         COMMENT "Running TDD test suite"
     )
 
