@@ -15,7 +15,10 @@ traceability:
 
 ## Status
 
-Accepted (2025-10-03) – pugixml 1.13 chosen as primary XML parser; revisit for native schema validation needs.
+**UPDATED** (2025-10-10) – Dual XML strategy: pugixml 1.13 for parsing + libxml2 for external XSD validation.
+
+**Previous Decision**: pugixml only with custom validation  
+**Updated Decision**: pugixml + libxml2 for external authority compliance
 
 **Deciders**: Architecture Team  
 **Technical Story**: Technology Stack Selection for XML Processing
@@ -33,9 +36,14 @@ The DAW Project standard is based on XML format with complex nested structures. 
 - **Schema Validation**: XSD schema validation for standards compliance
 - **Error Handling**: Detailed error reporting for malformed files
 
-## Decision
+## Updated Decision (External Authority Compliance)
 
-We will use **pugixml version 1.13** as the primary XML parsing library.
+We will use **dual XML processing strategy**:
+
+1. **pugixml version 1.13** - Primary XML parsing and document manipulation
+2. **libxml2** - External XSD schema validation against authoritative schemas
+
+**Critical Update Rationale**: Gap analysis identified that pugixml-only approach violates external authority compliance. MUST validate against external Project.xsd and MetaData.xsd schemas from official DAWProject repository.
 
 ## Rationale
 
@@ -235,27 +243,31 @@ public:
 };
 ```
 
-## Consequences
+## Consequences (Updated for External Authority Compliance)
 
 ### Positive Consequences
 
-✅ **Easy Integration**: Single header file, no build complexity  
-✅ **Development Speed**: Clean C++ API accelerates development  
-✅ **Performance**: Fast parsing for target project sizes  
-✅ **Maintenance**: Active community, regular updates  
-✅ **Cross-Platform**: Works identically on all target platforms  
-✅ **Memory Safety**: RAII and exception safety built in  
+✅ **Best of Both Worlds**: Fast parsing (pugixml) + authoritative validation (libxml2)  
+✅ **Standards Compliance**: External XSD validation ensures DAWProject specification adherence  
+✅ **Performance**: pugixml handles primary parsing operations efficiently  
+✅ **External Authority**: libxml2 validates against official Project.xsd and MetaData.xsd  
+✅ **Developer Productivity**: Familiar pugixml API for development, transparent validation  
+✅ **Future-Proof**: External schema updates automatically incorporated  
+✅ **Cross-Platform**: Both libraries work on all target platforms  
 
 ### Negative Consequences
 
-⚠️ **No Built-in XSD Validation**: Must implement custom validation  
-**Mitigation**: Phase approach with optional libxml2 integration  
+⚠️ **Increased Complexity**: Dual library integration requires careful dependency management  
+**Mitigation**: Clear separation of concerns between parsing and validation layers  
 
-⚠️ **Limited Streaming**: Full DOM parsing only, no SAX-style streaming  
-**Mitigation**: Implement chunked processing for very large files  
+⚠️ **Build Dependencies**: libxml2 adds autotools/pkg-config complexity on some platforms  
+**Mitigation**: CMake FindPkgConfig module handles cross-platform detection  
 
-⚠️ **Feature Limitations**: Less comprehensive than libxml2  
-**Mitigation**: Sufficient for DAW Project standard requirements  
+⚠️ **Memory Overhead**: Two XML libraries increase memory footprint  
+**Mitigation**: Load libxml2 only during validation operations, not parsing  
+
+⚠️ **External Dependency**: Requires network access for schema downloads and updates  
+**Mitigation**: Cache schemas locally with fallback to embedded backup schemas  
 
 ### Risk Assessment
 

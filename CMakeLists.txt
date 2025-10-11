@@ -7,16 +7,21 @@ project(dawproject_cpp
     LANGUAGES CXX
 )
 
-# C++ standard
-set(CMAKE_CXX_STANDARD 17)
+# C++ standard (ISO/IEC/IEEE 12207:2017 Implementation Process)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Build options
-option(DAWPROJECT_BUILD_TESTS "Build tests" ON)
+# XP Practices: Simple Design, Clean Code
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)  # For IDE integration and code analysis
+
+# Build options (TDD/XP Practices)
+option(DAWPROJECT_BUILD_TESTS "Build tests (TDD practice)" ON)
 option(DAWPROJECT_BUILD_EXAMPLES "Build examples" ON)
 option(DAWPROJECT_BUILD_DOCS "Build documentation" OFF)
-option(DAWPROJECT_ENABLE_COVERAGE "Enable code coverage" OFF)
+option(DAWPROJECT_ENABLE_COVERAGE "Enable code coverage (>90% target)" OFF)
+option(DAWPROJECT_ENABLE_EXTERNAL_AUTHORITY "Enable external authority compliance (MANDATORY)" ON)
+option(DAWPROJECT_ENABLE_TDD_MOCKS "Enable TDD mocking support" ON)
 
 # Configuration for different build types
 if(NOT CMAKE_BUILD_TYPE)
@@ -50,37 +55,129 @@ find_package(PkgConfig QUIET)
 # Threading support (required for thread-safe operations)
 find_package(Threads REQUIRED)
 
+# External Authority Compliance Dependencies
+option(DAWPROJECT_ENABLE_EXTERNAL_VALIDATION "Enable external XSD validation with libxml2" ON)
+option(DAWPROJECT_ENABLE_EXTERNAL_SCHEMA_MANAGEMENT "Enable external schema download with libcurl" ON)
+
+# External XSD validation support (libxml2) - CRITICAL for external authority compliance
+if(DAWPROJECT_ENABLE_EXTERNAL_VALIDATION)
+    if(PkgConfig_FOUND)
+        pkg_check_modules(LIBXML2 REQUIRED libxml-2.0)
+        if(LIBXML2_FOUND)
+            message(STATUS "Found libxml2 ${LIBXML2_VERSION} (required for external XSD validation)")
+        endif()
+    else()
+        find_package(LibXml2 REQUIRED)
+        if(LIBXML2_FOUND)
+            message(STATUS "Found libxml2 (required for external XSD validation)")
+        endif()
+    endif()
+else()
+    message(WARNING "External XSD validation disabled - may violate external authority compliance")
+endif()
+
+# HTTP client for external schema management (libcurl) - CRITICAL for external authority compliance
+if(DAWPROJECT_ENABLE_EXTERNAL_SCHEMA_MANAGEMENT)
+    find_package(CURL REQUIRED)
+    if(CURL_FOUND)
+        message(STATUS "Found libcurl ${CURL_VERSION_STRING} (required for external schema management)")
+    endif()
+else()
+    message(WARNING "External schema management disabled - may violate external authority compliance")
+endif()
+
+# pugixml for fast XML parsing (header-only preferred)
+find_path(PUGIXML_INCLUDE_DIR pugixml.hpp
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/pugixml/src
+    PATHS /usr/include /usr/local/include
+    DOC "Path to pugixml header"
+)
+if(PUGIXML_INCLUDE_DIR)
+    message(STATUS "Found pugixml at ${PUGIXML_INCLUDE_DIR}")
+else()
+    message(STATUS "pugixml not found - will be downloaded automatically")
+endif()
+
+# ZIP library for DAWProject archive handling
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+    pkg_check_modules(LIBZIP libzip)
+    if(LIBZIP_FOUND)
+        message(STATUS "Found libzip ${LIBZIP_VERSION}")
+    else()
+        message(STATUS "libzip not found via pkg-config - will use fallback")
+    endif()
+endif()
+
 # Set up directories
-set(DAWPROJECT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/05-implementation/include)
-set(DAWPROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/05-implementation/src)
-set(DAWPROJECT_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/05-implementation/examples)
-set(DAWPROJECT_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/05-implementation/tests)
+set(DAWPROJECT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(DAWPROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(DAWPROJECT_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 # Include directories
 include_directories(${DAWPROJECT_INCLUDE_DIR})
 
-# Placeholder for library sources (to be added in Phase 05)
+# Phase 05 Implementation - Core library sources (TDD approach)
 set(DAWPROJECT_SOURCES
-    # Core library sources will be added during implementation phase
-    # ${DAWPROJECT_SOURCE_DIR}/DawProject.cpp
-    # ${DAWPROJECT_SOURCE_DIR}/Project.cpp
-    # ${DAWPROJECT_SOURCE_DIR}/Track.cpp
-    # ${DAWPROJECT_SOURCE_DIR}/Clip.cpp
+    # Core Result<T> Pattern Implementation
+    ${DAWPROJECT_SOURCE_DIR}/core/error_info.cpp
+    
+    # Additional sources will be added as we implement them following TDD
+    # ${DAWPROJECT_SOURCE_DIR}/external/external_schema_manager.cpp
+    # ${DAWPROJECT_SOURCE_DIR}/data/validation_engine.cpp
+    # ${DAWPROJECT_SOURCE_DIR}/data/data_access_layer.cpp
+    # ${DAWPROJECT_SOURCE_DIR}/interop/interoperability_validator.cpp
 )
 
-# Placeholder for public headers
+# Phase 05 Implementation - Public headers
 set(DAWPROJECT_HEADERS
-    # Public headers will be added during implementation phase
-    # ${DAWPROJECT_INCLUDE_DIR}/dawproject/DawProject.h
-    # ${DAWPROJECT_INCLUDE_DIR}/dawproject/Project.h
-    # ${DAWPROJECT_INCLUDE_DIR}/dawproject/Track.h
-    # ${DAWPROJECT_INCLUDE_DIR}/dawproject/Clip.h
+    # Core interfaces and patterns
+    ${DAWPROJECT_INCLUDE_DIR}/dawproject/core/result.hpp
+    
+    # Additional headers will be added as we implement them
+    # ${DAWPROJECT_INCLUDE_DIR}/dawproject/external/external_authority.hpp
+    # ${DAWPROJECT_INCLUDE_DIR}/dawproject/data/validation_interfaces.hpp
+    # ${DAWPROJECT_INCLUDE_DIR}/dawproject/data/data_access_interfaces.hpp
+    # ${DAWPROJECT_INCLUDE_DIR}/dawproject/interop/interoperability_interfaces.hpp
 )
 
-# Create library target (placeholder for Phase 05)
-# add_library(dawproject ${DAWPROJECT_SOURCES} ${DAWPROJECT_HEADERS})
-# target_include_directories(dawproject PUBLIC ${DAWPROJECT_INCLUDE_DIR})
-# target_link_libraries(dawproject Threads::Threads)
+# Create library target - Phase 05 Implementation
+add_library(dawproject ${DAWPROJECT_SOURCES} ${DAWPROJECT_HEADERS})
+target_include_directories(dawproject PUBLIC ${DAWPROJECT_INCLUDE_DIR})
+target_compile_features(dawproject PUBLIC cxx_std_20)  # C++20 required
+
+# Core dependencies
+target_link_libraries(dawproject Threads::Threads)
+
+# External authority compliance dependencies
+if(DAWPROJECT_ENABLE_EXTERNAL_SCHEMA_MANAGEMENT AND LIBXML2_FOUND)
+    if(PkgConfig_FOUND AND LIBXML2_FOUND)
+        target_link_libraries(dawproject ${LIBXML2_LIBRARIES})
+        target_include_directories(dawproject PRIVATE ${LIBXML2_INCLUDE_DIRS})
+#         target_compile_definitions(dawproject PRIVATE DAWPROJECT_HAS_LIBXML2)
+#     else()
+#         target_link_libraries(dawproject LibXml2::LibXml2)
+#         target_compile_definitions(dawproject PRIVATE DAWPROJECT_HAS_LIBXML2)
+#     endif()
+# endif()
+# 
+# if(DAWPROJECT_ENABLE_EXTERNAL_SCHEMA_MANAGEMENT AND CURL_FOUND)
+#     target_link_libraries(dawproject CURL::libcurl)
+#     target_compile_definitions(dawproject PRIVATE DAWPROJECT_HAS_CURL)
+# endif()
+# 
+# # pugixml integration
+# if(PUGIXML_INCLUDE_DIR)
+#     target_include_directories(dawproject PRIVATE ${PUGIXML_INCLUDE_DIR})
+#     target_compile_definitions(dawproject PRIVATE DAWPROJECT_HAS_PUGIXML)
+# endif()
+# 
+# # ZIP library integration
+# if(LIBZIP_FOUND)
+#     target_link_libraries(dawproject ${LIBZIP_LIBRARIES})
+#     target_include_directories(dawproject PRIVATE ${LIBZIP_INCLUDE_DIRS})
+#     target_compile_definitions(dawproject PRIVATE DAWPROJECT_HAS_LIBZIP)
+# endif()
 
 # Set up exports
 # set_target_properties(dawproject PROPERTIES
@@ -148,6 +245,20 @@ message(STATUS "  Build Examples: ${DAWPROJECT_BUILD_EXAMPLES}")
 message(STATUS "  Build Documentation: ${DAWPROJECT_BUILD_DOCS}")
 message(STATUS "  Enable Coverage: ${DAWPROJECT_ENABLE_COVERAGE}")
 message(STATUS "")
-message(STATUS "Current Phase: Phase 01-02 (Requirements)")
+message(STATUS "External Authority Compliance:")
+message(STATUS "  External XSD Validation: ${DAWPROJECT_ENABLE_EXTERNAL_VALIDATION}")
+message(STATUS "  External Schema Management: ${DAWPROJECT_ENABLE_EXTERNAL_SCHEMA_MANAGEMENT}")
+if(DAWPROJECT_ENABLE_EXTERNAL_VALIDATION AND LIBXML2_FOUND)
+    message(STATUS "  ✓ libxml2 found - external XSD validation available")
+else()
+    message(STATUS "  ⚠ libxml2 missing - external XSD validation unavailable")
+endif()
+if(DAWPROJECT_ENABLE_EXTERNAL_SCHEMA_MANAGEMENT AND CURL_FOUND)
+    message(STATUS "  ✓ libcurl found - external schema management available")
+else()
+    message(STATUS "  ⚠ libcurl missing - external schema management unavailable")
+endif()
+message(STATUS "")
+message(STATUS "Current Phase: Phase 03 (Architecture - External Authority Updated)")
 message(STATUS "Implementation will begin in Phase 05")
 message(STATUS "")

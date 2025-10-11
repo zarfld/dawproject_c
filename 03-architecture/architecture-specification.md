@@ -16,11 +16,12 @@ traceability:
 # Software Architecture Specification
 ## DAW Project Standard C++ Implementation Library
 
-**Document ID**: ARCH-DAWPROJECT-CPP-001  
-**Version**: 1.0  
-**Date**: October 3, 2025  
-**Status**: Draft  
-**Phase**: 03 - Architecture Design
+**Document ID**: ARCH-DAWPROJECT-CPP-002  
+**Version**: 2.0 - External Authority Compliant  
+**Date**: October 10, 2025  
+**Status**: Updated for External Authority Compliance  
+**Phase**: 03 - Architecture Design  
+**Replaces**: Previous version lacking external authority integration
 
 ---
 
@@ -85,17 +86,15 @@ This architecture specification covers:
 
 ---
 
-## 3. System Context (C4 Level 1)
+## 3. System Context (C4 Level 1) - External Authority Compliant
 
-The DAW Project Library operates within the broader digital audio workstation ecosystem:
+The DAW Project Library operates with external authority sources that must never be internalized:
 
 ```mermaid
 graph TB
-    subgraph "External Systems"
-        Bitwig[Bitwig Studio<br/>Reference DAW<br/>Creates standard files]
-        OtherDAWs[Other DAWs<br/>Cubase, Studio One<br/>Consumer applications]
-        FileSystem[File System<br/>Local/Network Storage<br/>Stores .dawproject files]
-    end
+    Library[DAW Project C++ Library<br/>External Authority Compliant Implementation<br/>Standards-compliant implementation]
+    
+    Developer[Audio Software Developer<br/>Integrates library into<br/>audio applications]
     
     subgraph "Target Applications"
         CommercialDAW[Commercial DAW<br/>Professional audio software<br/>Uses library for compatibility]
@@ -103,82 +102,194 @@ graph TB
         AudioTools[Audio Utilities<br/>Conversion, analysis tools<br/>Uses streaming API]
     end
     
-    Library[DAW Project C++ Library<br/>Standards-compliant implementation<br/>Dual API support]
+    subgraph "External Authority Sources - NEVER INTERNALIZE"
+        ProjectXSD[Project.xsd Schema<br/>https://raw.githubusercontent.com/bitwig/dawproject/main/Project.xsd<br/>⚠️ EXTERNAL AUTHORITY ONLY]
+        MetaDataXSD[MetaData.xsd Schema<br/>https://raw.githubusercontent.com/bitwig/dawproject/main/MetaData.xsd<br/>⚠️ EXTERNAL AUTHORITY ONLY]
+        OfficialTests[Official Test Files<br/>https://github.com/bitwig/dawproject/tree/main/src/test-data<br/>⚠️ EXTERNAL AUTHORITY ONLY]
+        HTMLReference[Format Reference<br/>https://htmlpreview.github.io/?https://github.com/bitwig/dawproject/blob/main/Reference.html<br/>⚠️ EXTERNAL AUTHORITY ONLY]
+    end
     
-    Developer[Audio Software Developer<br/>Integrates library into<br/>audio applications]
+    subgraph "External DAW Applications"
+        Bitwig[Bitwig Studio<br/>Official DAW application<br/>Interoperability validation target]
+        PreSonus[PreSonus Studio One<br/>Compatible DAW application<br/>Interoperability validation target]
+    end
     
     Developer --> Library
     CommercialDAW --> Library
     OpenSourceDAW --> Library  
     AudioTools --> Library
     
-    Library -.->|reads| FileSystem
-    Library -.->|writes| FileSystem
-    Library -.->|validates against| Bitwig
-    
-    FileSystem -.->|contains files from| Bitwig
-    FileSystem -.->|contains files from| OtherDAWs
+    Library -.->|validates against| ProjectXSD
+    Library -.->|validates against| MetaDataXSD
+    Library -.->|tests with| OfficialTests
+    Library -.->|references| HTMLReference
+    Library -.->|generates files for| Bitwig
+    Library -.->|generates files for| PreSonus
     
     classDef person fill:#08427b,stroke:#052e56,stroke-width:2px,color:#fff
-    classDef library fill:#1168bd,stroke:#0b4884,stroke-width:2px,color:#fff
-    classDef external fill:#999999,stroke:#6b6b6b,stroke-width:2px,color:#fff
+    classDef library fill:#4169E1,stroke:#2E4BC6,stroke-width:2px,color:#fff
+    classDef external fill:#ff4444,stroke:#cc0000,stroke-width:3px,color:#fff
     classDef application fill:#2E8B57,stroke:#1F5F3F,stroke-width:2px,color:#fff
+    classDef daw fill:#32CD32,stroke:#228B22,stroke-width:2px,color:#fff
     
     class Developer person
     class Library library
-    class Bitwig,OtherDAWs,FileSystem external
+    class ProjectXSD,MetaDataXSD,OfficialTests,HTMLReference external
     class CommercialDAW,OpenSourceDAW,AudioTools application
+    class Bitwig,PreSonus daw
 ```
 
 ---
 
-## 4. Container Architecture (C4 Level 2)
+## 4. Container Architecture (C4 Level 2) - External Authority Compliant
 
-The library is structured as multiple containers with clear responsibilities:
+The library is structured with external authority integration as a core architectural principle:
 
 ```mermaid
 graph TB
     subgraph "DAW Project C++ Library"
-        PublicAPI[Public API Layer<br/>C++17 / C-style APIs<br/>User-facing interfaces]
-        CoreEngine[Core Engine<br/>C++17<br/>Business logic & processing]
+        PublicAPI[Public API<br/>C++17<br/>Simple interface for developers]
+        CoreEngine[Core Engine<br/>C++17<br/>Business logic and orchestration]
+        ExternalSchemaManager[External Schema Manager<br/>C++17<br/>Downloads and caches external XSD schemas]
+        ExternalValidationEngine[External Validation Engine<br/>C++17 + libxml2<br/>XSD validation against external schemas]
+        ExternalTestManager[External Test Manager<br/>C++17<br/>Downloads and manages official test files]
         DataAccess[Data Access Layer<br/>C++17<br/>XML/ZIP file operations]
-        ValidationEngine[Validation Engine<br/>C++17<br/>Schema & standards compliance]
-        ErrorHandling[Error Handling<br/>C++17<br/>Exception management & logging]
+        InteroperabilityValidator[Interoperability Validator<br/>C++17<br/>External DAW compatibility testing]
+        ErrorHandling[Error Handling<br/>C++17<br/>Exception hierarchy and error codes]
     end
     
     subgraph "External Dependencies"
-        XMLParser[XML Parser<br/>pugixml/libxml2<br/>XML document processing]
-        ZIPLibrary[ZIP Library<br/>minizip/libzip<br/>Archive file access]
-        ThreadingLib[Threading Support<br/>std::thread/std::mutex<br/>Concurrency primitives]
+        LibXML2[libxml2<br/>C Library<br/>XSD schema validation]
+        PugiXML[pugixml<br/>C++ Library<br/>Fast XML parsing]
+        ZIPLibrary[ZIP Library<br/>libzip<br/>Archive processing]
+        HTTPClient[HTTP Client<br/>libcurl<br/>External schema download]
     end
     
-    subgraph "Target Application"
-        AppCode[Client Application<br/>DAW or Audio Tool<br/>Integrates library]
+    subgraph "External Authority - Runtime Download Only"
+        ExternalProjectXSD[(Project.xsd<br/>External schema<br/>Runtime download)]
+        ExternalMetaDataXSD[(MetaData.xsd<br/>External schema<br/>Runtime download)]
+        ExternalOfficialTests[(Official Test Files<br/>External test data<br/>Runtime download)]
     end
     
-    subgraph "File System"
-        ProjectFiles[(DAW Project Files<br/>.dawproject archives<br/>XML + audio content)]
-    end
-    
-    AppCode --> PublicAPI
     PublicAPI --> CoreEngine
+    CoreEngine --> ExternalSchemaManager
+    CoreEngine --> ExternalValidationEngine
+    CoreEngine --> ExternalTestManager
     CoreEngine --> DataAccess
-    CoreEngine --> ValidationEngine
+    CoreEngine --> InteroperabilityValidator
     CoreEngine --> ErrorHandling
-    DataAccess --> XMLParser
+    
+    ExternalSchemaManager --> HTTPClient
+    ExternalValidationEngine --> LibXML2
+    ExternalTestManager --> HTTPClient
+    DataAccess --> PugiXML
     DataAccess --> ZIPLibrary
-    CoreEngine --> ThreadingLib
-    DataAccess --> ProjectFiles
     
-    classDef container fill:#1168bd,stroke:#0b4884,stroke-width:2px,color:#fff
+    ExternalSchemaManager -.->|downloads| ExternalProjectXSD
+    ExternalSchemaManager -.->|downloads| ExternalMetaDataXSD
+    ExternalTestManager -.->|downloads| ExternalOfficialTests
+    
+    classDef container fill:#4169E1,stroke:#2E4BC6,stroke-width:2px,color:#fff
     classDef external fill:#999999,stroke:#6b6b6b,stroke-width:2px,color:#fff
-    classDef application fill:#2E8B57,stroke:#1F5F3F,stroke-width:2px,color:#fff
-    classDef data fill:#8B4513,stroke:#5D2E09,stroke-width:2px,color:#fff
+    classDef authority fill:#ff4444,stroke:#cc0000,stroke-width:2px,color:#fff
     
-    class PublicAPI,CoreEngine,DataAccess,ValidationEngine,ErrorHandling container
-    class XMLParser,ZIPLibrary,ThreadingLib external
-    class AppCode application
-    class ProjectFiles data
+    class PublicAPI,CoreEngine,ExternalSchemaManager,ExternalValidationEngine,ExternalTestManager,DataAccess,InteroperabilityValidator,ErrorHandling container
+    class LibXML2,PugiXML,ZIPLibrary,HTTPClient external
+    class ExternalProjectXSD,ExternalMetaDataXSD,ExternalOfficialTests authority
+```
+
+---
+
+## 5. Critical External Authority Integration
+
+### 5.1 External Authority Validation Requirements
+
+**CRITICAL PRINCIPLE**: All validation must be performed against external authoritative sources. No internal schemas or copies are permitted.
+
+### 5.2 External Schema Manager
+
+```cpp
+class ExternalSchemaManager {
+public:
+    // Core external schema operations
+    Result<std::filesystem::path> getProjectSchema();
+    Result<std::filesystem::path> getMetaDataSchema();
+    Result<bool> updateSchemasIfNeeded();
+    void clearCache();
+    
+private:
+    // External authority URLs - NEVER internalize these
+    static constexpr const char* PROJECT_XSD_URL = 
+        "https://raw.githubusercontent.com/bitwig/dawproject/main/Project.xsd";
+    static constexpr const char* METADATA_XSD_URL = 
+        "https://raw.githubusercontent.com/bitwig/dawproject/main/MetaData.xsd";
+        
+    std::filesystem::path cacheDirectory_;
+    std::unique_ptr<HTTPClient> httpClient_;
+};
+```
+
+### 5.3 External Validation Engine
+
+```cpp
+class ExternalValidationEngine {
+public:
+    // External XSD validation using libxml2
+    ValidationResult validateProjectXML(const std::string& xmlContent);
+    ValidationResult validateMetaDataXML(const std::string& xmlContent);
+    
+private:
+    std::unique_ptr<ExternalSchemaManager> schemaManager_;
+    
+    // libxml2 integration for authoritative XSD validation
+    ValidationResult performXSDValidation(
+        const std::string& xml, 
+        const std::filesystem::path& xsdPath
+    );
+};
+```
+
+### 5.4 External Test Manager
+
+```cpp
+class ExternalTestManager {
+public:
+    // Official test file management  
+    Result<std::vector<TestCase>> getOfficialTestCases();
+    Result<bool> updateTestFiles();
+    ValidationResult runOfficialTestSuite();
+    
+private:
+    static constexpr const char* OFFICIAL_TESTS_URL = 
+        "https://github.com/bitwig/dawproject/tree/main/src/test-data";
+        
+    std::filesystem::path testCacheDirectory_;
+    std::unique_ptr<HTTPClient> httpClient_;
+};
+```
+
+### 5.5 Interoperability Validator
+
+```cpp
+class InteroperabilityValidator {
+public:
+    // External DAW compatibility validation
+    InteroperabilityResult validateBitwigCompatibility(
+        const std::filesystem::path& dawprojectFile
+    );
+    InteroperabilityResult validatePresonusCompatibility(
+        const std::filesystem::path& dawprojectFile
+    );
+    
+    // Round-trip fidelity testing
+    RoundTripResult validateRoundTripFidelity(
+        const DAWProject& project
+    );
+    
+private:
+    std::unique_ptr<ExternalTestManager> testManager_;
+    std::unique_ptr<ExternalValidationEngine> validationEngine_;
+};
 ```
 
 ---
