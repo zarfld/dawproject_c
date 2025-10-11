@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/_deps/catch2-subbuild/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

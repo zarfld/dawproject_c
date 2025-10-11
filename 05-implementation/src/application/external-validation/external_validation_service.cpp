@@ -1,6 +1,6 @@
-#include "dawproject/external/external_validation_engine.h"
-#include "dawproject/core/error_info.h"
-#include "libxml2_validator.h"
+#include "../../include/dawproject/application/external-validation/external_validation_service.h"
+#include "../../include/dawproject/infrastructure/xml-validation/libxml2_validator.h"
+#include "../../include/dawproject/core/error_info.h"
 #include <stdexcept>
 #include <fstream>
 #include <sstream>
@@ -10,22 +10,27 @@
 #include <algorithm>
 
 namespace dawproject {
-namespace external {
+namespace application {
+namespace external_validation {
+
+// Import infrastructure types
+using namespace dawproject::infrastructure::xml_validation;
 
 /**
- * @brief Stub implementation for TDD RED phase
+ * @brief External validation service implementation (Application Layer)
  * 
- * This implementation will fail all tests initially, following TDD methodology.
- * Real implementation will be added in GREEN phase.
+ * This implementation orchestrates domain validation logic using infrastructure services.
+ * Follows domain-driven design principles with proper layer separation.
  */
-class ExternalValidationEngineImpl : public IExternalValidationEngine {
+class ExternalValidationServiceImpl : public IExternalValidationService {
 private:
     LibXML2Validator projectValidator_;
     LibXML2Validator metaDataValidator_;
     bool schemasLoaded_ = false;
+    ExternalValidationConfig config_;
 
 public:
-    explicit ExternalValidationEngineImpl(const ExternalValidationConfig& config)
+    explicit ExternalValidationServiceImpl(const ExternalValidationConfig& config)
         : config_(config) {
         initializeSchemas();
     }
@@ -67,7 +72,8 @@ public:
         std::string xmlContent((std::istreambuf_iterator<char>(file)),
                                std::istreambuf_iterator<char>());
         
-        return performBasicValidation(xmlContent, schemaType);
+        return (schemaType == SchemaType::ProjectSchema) ? 
+            validateProjectXML(xmlContent) : validateMetaDataXML(xmlContent);
     }
 
     Result<std::vector<ValidationReport>> batchValidate(
@@ -77,7 +83,9 @@ public:
         reports.reserve(validationRequests.size());
         
         for (const auto& request : validationRequests) {
-            auto result = performBasicValidation(request.xmlContent, request.schemaType);
+            auto result = (request.schemaType == SchemaType::ProjectSchema) ?
+                validateProjectXML(request.xmlContent) : validateMetaDataXML(request.xmlContent);
+                
             if (result.isSuccess()) {
                 reports.push_back(result.value());
             } else {
@@ -115,7 +123,7 @@ public:
     Result<ValidationEngineInfo> getEngineInfo() override {
         // REFACTOR phase: Use real libxml2 version information
         ValidationEngineInfo info;
-        info.engineVersion = "1.0.0-refactor";
+        info.engineVersion = "1.0.0-refactor-ddd";
         info.libxml2Version = LibXML2Validator::getLibXML2Version();
         info.externalAuthoritySupport = schemasLoaded_;
         info.supportedSchemaTypes = {"Project.xsd", "MetaData.xsd"};
@@ -131,7 +139,6 @@ public:
     }
 
 private:
-    ExternalValidationConfig config_;
     
     void initializeSchemas() {
         // REFACTOR phase: Load actual XSD schemas for validation
@@ -176,7 +183,7 @@ private:
         schemasLoaded_ = projectValidator_.loadSchema(projectSchema) && 
                         metaDataValidator_.loadSchema(metaDataSchema);
     }
-    
+
     /**
      * @brief Perform real XSD validation using LibXML2 (REFACTOR phase)
      * 
@@ -388,15 +395,16 @@ private:
 };
 
 // Factory implementation
-std::unique_ptr<IExternalValidationEngine> ExternalValidationEngineFactory::create() {
+std::unique_ptr<IExternalValidationService> ExternalValidationServiceFactory::create() {
     ExternalValidationConfig defaultConfig;
     return create(defaultConfig);
 }
 
-std::unique_ptr<IExternalValidationEngine> ExternalValidationEngineFactory::create(
+std::unique_ptr<IExternalValidationService> ExternalValidationServiceFactory::create(
     const ExternalValidationConfig& config) {
-    return std::make_unique<ExternalValidationEngineImpl>(config);
+    return std::make_unique<ExternalValidationServiceImpl>(config);
 }
 
-} // namespace external
+} // namespace external_validation
+} // namespace application
 } // namespace dawproject

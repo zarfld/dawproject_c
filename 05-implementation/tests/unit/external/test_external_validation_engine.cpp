@@ -68,7 +68,16 @@ TEST_CASE("ExternalValidationEngine provides engine information", "[external][va
     auto info = infoResult.value();
     REQUIRE_FALSE(info.engineVersion.empty());
     REQUIRE_FALSE(info.libxml2Version.empty());
-    REQUIRE(info.externalAuthoritySupport == true);
+    
+    // REFACTOR phase: Check external authority support based on libxml2 availability
+    if (info.libxml2Version.find("not-available") != std::string::npos) {
+        // libxml2 not available - external authority support should be false
+        REQUIRE(info.externalAuthoritySupport == false);
+    } else {
+        // libxml2 available - external authority support should be true
+        REQUIRE(info.externalAuthoritySupport == true);
+    }
+    
     REQUIRE_FALSE(info.supportedSchemaTypes.empty());
 }
 

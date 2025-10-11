@@ -21,6 +21,7 @@ endif()
 option(ENABLE_TESTING "Enable unit and integration testing" ON)
 option(ENABLE_COVERAGE "Enable code coverage analysis" ON)
 option(ENABLE_SANITIZERS "Enable AddressSanitizer and UBSan" ON)
+option(DAWPROJECT_ENABLE_EXTERNAL_VALIDATION "Enable external XSD validation with libxml2" ON)
 
 # Global compiler flags for quality and debugging
 if(MSVC)
@@ -60,6 +61,18 @@ include_directories(
 
 # External dependencies management
 include(FetchContent)
+
+# External validation dependencies
+if(DAWPROJECT_ENABLE_EXTERNAL_VALIDATION)
+    find_package(PkgConfig QUIET)
+    if(PkgConfig_FOUND)
+        pkg_check_modules(LIBXML2 QUIET libxml-2.0)
+    endif()
+    
+    if(NOT LIBXML2_FOUND)
+        find_package(LibXml2 QUIET)
+    endif()
+endif()
 
 # Catch2 for testing (following TDD strategy)
 if(ENABLE_TESTING)
