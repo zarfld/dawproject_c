@@ -1,0 +1,63 @@
+# Test Configuration for Coverage Improvement
+# Following IEEE 12207-2017 Implementation Process + XP TDD practices
+
+message(STATUS "Configuring comprehensive tests for coverage improvement...")
+
+# Check if we have Catch2
+find_package(Catch2 3 REQUIRED)
+
+# Comprehensive Platform Layer Tests for Coverage Improvement  
+add_executable(test_platform_comprehensive
+    unit/platform/test_platform_comprehensive.cpp
+    unit/platform/test_platform_threading_memory.cpp
+)
+
+target_link_libraries(test_platform_comprehensive
+    PRIVATE 
+        dawproject_platform
+        Catch2::Catch2WithMain
+)
+
+target_include_directories(test_platform_comprehensive PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include
+)
+
+catch_discover_tests(test_platform_comprehensive)
+
+# Comprehensive Data Access Tests for Coverage Improvement
+add_executable(test_data_comprehensive
+    unit/data/test_data_access_comprehensive.cpp
+)
+
+target_link_libraries(test_data_comprehensive
+    PRIVATE 
+        dawproject_data
+        Catch2::Catch2WithMain
+)
+
+target_include_directories(test_data_comprehensive PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include
+)
+
+catch_discover_tests(test_data_comprehensive)
+
+# Mock Business Integration Test (using existing smoke test)
+add_executable(test_business_integration_mock
+    unit/test_smoke_coverage.cpp
+    unit/test_dawproject_api.cpp
+)
+
+target_link_libraries(test_business_integration_mock
+    PRIVATE 
+        dawproject_data
+        dawproject_api
+        Catch2::Catch2WithMain
+)
+
+target_include_directories(test_business_integration_mock PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include
+)
+
+catch_discover_tests(test_business_integration_mock)
+
+message(STATUS "Added comprehensive tests: test_platform_comprehensive, test_data_comprehensive, test_business_integration_mock")
