@@ -12,7 +12,7 @@ on:
 env:
   PYTHON_VERSION: "3.11"
   CMAKE_BUILD_TYPE: "Debug"
-  MIN_TEST_COVERAGE: 30 # Increased from 25% based on current coverage of 32.82%
+  MIN_TEST_COVERAGE: 45 # Increased from 25% based on current coverage of 32.82%
   MIN_REQ_LINKAGE_COVERAGE: 80
   MIN_REQ_ADR_COVERAGE: 70
   MIN_REQ_SCENARIO_COVERAGE: 60
