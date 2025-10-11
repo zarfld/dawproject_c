@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/_deps/catch2-subbuild/CMakeFiles/catch2-populate"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/_deps/catch2-subbuild/CMakeFiles/064cc6f31db9df7329e67b8116bc5bc7/catch2-populate.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/_deps/catch2-subbuild/CMakeFiles/4679a9aa597a9d3d77f70d2666879cdc/catch2-populate-complete.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/_deps/catch2-subbuild/CMakeFiles/a06aa01a312d53044ca3958606838b92/catch2-populate-build.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/_deps/catch2-subbuild/CMakeFiles/a06aa01a312d53044ca3958606838b92/catch2-populate-configure.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/_deps/catch2-subbuild/CMakeFiles/a06aa01a312d53044ca3958606838b92/catch2-populate-download.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/_deps/catch2-subbuild/CMakeFiles/a06aa01a312d53044ca3958606838b92/catch2-populate-install.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/_deps/catch2-subbuild/CMakeFiles/a06aa01a312d53044ca3958606838b92/catch2-populate-mkdir.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/_deps/catch2-subbuild/CMakeFiles/a06aa01a312d53044ca3958606838b92/catch2-populate-patch.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/_deps/catch2-subbuild/CMakeFiles/a06aa01a312d53044ca3958606838b92/catch2-populate-test.rule"
+		},
+		{
+			"file" : "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/_deps/catch2-subbuild/CMakeFiles/a06aa01a312d53044ca3958606838b92/catch2-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"catch2-populate"
+		],
+		"name" : "catch2-populate"
+	}
+}

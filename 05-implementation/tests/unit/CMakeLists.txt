@@ -22,10 +22,10 @@ FetchContent_MakeAvailable(Catch2)
 
 # Create minimal platform library for testing
 add_library(dawproject_platform_minimal
-    ../src/platform/platform_factory.cpp
-    ../src/platform/filesystem_impl.cpp
-    ../src/platform/threading_impl.cpp
-    ../src/platform/memory_impl.cpp
+    ../../src/platform/platform_factory.cpp
+    ../../src/platform/filesystem_impl.cpp
+    ../../src/platform/threading_impl.cpp
+    ../../src/platform/memory_impl.cpp
 )
 target_include_directories(dawproject_platform_minimal PUBLIC ../../include)
 target_compile_definitions(dawproject_platform_minimal PRIVATE _CRT_SECURE_NO_WARNINGS)
@@ -41,6 +41,24 @@ target_link_libraries(test_platform_red
     PRIVATE dawproject_platform_minimal Catch2::Catch2WithMain
 )
 
+# Create external validation engine library for testing
+add_library(dawproject_external_validation_minimal
+    ../../src/external/external_validation_engine.cpp
+    ../../src/core/error_info.cpp
+)
+target_include_directories(dawproject_external_validation_minimal PUBLIC ../../include)
+target_compile_definitions(dawproject_external_validation_minimal PRIVATE _CRT_SECURE_NO_WARNINGS)
+
+# Create external validation test executable
+add_executable(test_external_validation_red
+    external/test_external_validation_engine.cpp
+)
+
+target_link_libraries(test_external_validation_red
+    PRIVATE dawproject_external_validation_minimal Catch2::Catch2WithMain
+)
+
 # Enable testing
 enable_testing()
 add_test(NAME PlatformTests COMMAND test_platform_red)
+add_test(NAME ExternalValidationTests COMMAND test_external_validation_red)

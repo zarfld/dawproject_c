@@ -1,0 +1,10 @@
+^D:\REPOS\DAWPROJECT_C\05-IMPLEMENTATION\TESTS\UNIT\BUILD_RED\_DEPS\CATCH2-SUBBUILD\CMAKEFILES\064CC6F31DB9DF7329E67B8116BC5BC7\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Repos/dawproject_c/05-implementation/tests/unit/build_red/_deps/catch2-subbuild -BD:/Repos/dawproject_c/05-implementation/tests/unit/build_red/_deps/catch2-subbuild --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/_deps/catch2-subbuild/catch2-populate.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

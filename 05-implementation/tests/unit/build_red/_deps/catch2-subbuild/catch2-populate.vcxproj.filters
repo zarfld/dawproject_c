@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\Repos\dawproject_c\05-implementation\tests\unit\build_red\_deps\catch2-subbuild\CMakeFiles\a06aa01a312d53044ca3958606838b92\catch2-populate-mkdir.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\Repos\dawproject_c\05-implementation\tests\unit\build_red\_deps\catch2-subbuild\CMakeFiles\a06aa01a312d53044ca3958606838b92\catch2-populate-download.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\Repos\dawproject_c\05-implementation\tests\unit\build_red\_deps\catch2-subbuild\CMakeFiles\a06aa01a312d53044ca3958606838b92\catch2-populate-update.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\Repos\dawproject_c\05-implementation\tests\unit\build_red\_deps\catch2-subbuild\CMakeFiles\a06aa01a312d53044ca3958606838b92\catch2-populate-patch.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\Repos\dawproject_c\05-implementation\tests\unit\build_red\_deps\catch2-subbuild\CMakeFiles\a06aa01a312d53044ca3958606838b92\catch2-populate-configure.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\Repos\dawproject_c\05-implementation\tests\unit\build_red\_deps\catch2-subbuild\CMakeFiles\a06aa01a312d53044ca3958606838b92\catch2-populate-build.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\Repos\dawproject_c\05-implementation\tests\unit\build_red\_deps\catch2-subbuild\CMakeFiles\a06aa01a312d53044ca3958606838b92\catch2-populate-install.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\Repos\dawproject_c\05-implementation\tests\unit\build_red\_deps\catch2-subbuild\CMakeFiles\a06aa01a312d53044ca3958606838b92\catch2-populate-test.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\Repos\dawproject_c\05-implementation\tests\unit\build_red\_deps\catch2-subbuild\CMakeFiles\4679a9aa597a9d3d77f70d2666879cdc\catch2-populate-complete.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\Repos\dawproject_c\05-implementation\tests\unit\build_red\_deps\catch2-subbuild\CMakeFiles\064cc6f31db9df7329e67b8116bc5bc7\catch2-populate.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\Repos\dawproject_c\05-implementation\tests\unit\build_red\_deps\catch2-subbuild\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="D:\Repos\dawproject_c\05-implementation\tests\unit\build_red\_deps\catch2-subbuild\CMakeFiles\catch2-populate" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{C1A93861-5EA7-3C1E-8897-8A1EFD7B73B0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

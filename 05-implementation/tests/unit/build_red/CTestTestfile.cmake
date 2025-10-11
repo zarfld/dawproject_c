@@ -1,0 +1,37 @@
+# CMake generated Testfile for 
+# Source directory: D:/Repos/dawproject_c/05-implementation/tests/unit
+# Build directory: D:/Repos/dawproject_c/05-implementation/tests/unit/build_red
+# 
+# This file includes the relevant testing commands required for 
+# testing this directory and lists subdirectories to be tested as well.
+if(CTEST_CONFIGURATION_TYPE MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
+  add_test([=[PlatformTests]=] "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/Debug/test_platform_red.exe")
+  set_tests_properties([=[PlatformTests]=] PROPERTIES  _BACKTRACE_TRIPLES "D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;63;add_test;D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;0;")
+elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
+  add_test([=[PlatformTests]=] "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/Release/test_platform_red.exe")
+  set_tests_properties([=[PlatformTests]=] PROPERTIES  _BACKTRACE_TRIPLES "D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;63;add_test;D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;0;")
+elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Mm][Ii][Nn][Ss][Ii][Zz][Ee][Rr][Ee][Ll])$")
+  add_test([=[PlatformTests]=] "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/MinSizeRel/test_platform_red.exe")
+  set_tests_properties([=[PlatformTests]=] PROPERTIES  _BACKTRACE_TRIPLES "D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;63;add_test;D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;0;")
+elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Rr][Ee][Ll][Ww][Ii][Tt][Hh][Dd][Ee][Bb][Ii][Nn][Ff][Oo])$")
+  add_test([=[PlatformTests]=] "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/RelWithDebInfo/test_platform_red.exe")
+  set_tests_properties([=[PlatformTests]=] PROPERTIES  _BACKTRACE_TRIPLES "D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;63;add_test;D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;0;")
+else()
+  add_test([=[PlatformTests]=] NOT_AVAILABLE)
+endif()
+if(CTEST_CONFIGURATION_TYPE MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
+  add_test([=[ExternalValidationTests]=] "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/Debug/test_external_validation_red.exe")
+  set_tests_properties([=[ExternalValidationTests]=] PROPERTIES  _BACKTRACE_TRIPLES "D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;64;add_test;D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;0;")
+elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
+  add_test([=[ExternalValidationTests]=] "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/Release/test_external_validation_red.exe")
+  set_tests_properties([=[ExternalValidationTests]=] PROPERTIES  _BACKTRACE_TRIPLES "D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;64;add_test;D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;0;")
+elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Mm][Ii][Nn][Ss][Ii][Zz][Ee][Rr][Ee][Ll])$")
+  add_test([=[ExternalValidationTests]=] "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/MinSizeRel/test_external_validation_red.exe")
+  set_tests_properties([=[ExternalValidationTests]=] PROPERTIES  _BACKTRACE_TRIPLES "D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;64;add_test;D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;0;")
+elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Rr][Ee][Ll][Ww][Ii][Tt][Hh][Dd][Ee][Bb][Ii][Nn][Ff][Oo])$")
+  add_test([=[ExternalValidationTests]=] "D:/Repos/dawproject_c/05-implementation/tests/unit/build_red/RelWithDebInfo/test_external_validation_red.exe")
+  set_tests_properties([=[ExternalValidationTests]=] PROPERTIES  _BACKTRACE_TRIPLES "D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;64;add_test;D:/Repos/dawproject_c/05-implementation/tests/unit/CMakeLists.txt;0;")
+else()
+  add_test([=[ExternalValidationTests]=] NOT_AVAILABLE)
+endif()
+subdirs("_deps/catch2-build")
