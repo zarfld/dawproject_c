@@ -7,7 +7,7 @@ on:
   pull_request:
     branches: [main, master, develop]
   schedule:
-    - cron: "0 2 * * *" # Daily run
+    - cron: "0 2 1 * *" # Daily run
 
 env:
   PYTHON_VERSION: "3.11"
